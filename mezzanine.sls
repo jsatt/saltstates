@@ -61,6 +61,7 @@ restart_gunicorn:
         - name: supervisorctl restart gunicorn
         - watch:
             - git: mezzanine
+            - file: mezzanine
 
 {% for username, user in pillar.postgres.users.items() %}
 pg_user-{{username}}:
