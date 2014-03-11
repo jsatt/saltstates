@@ -8,6 +8,7 @@ server {
     server_name _;
 
     location /static/ {
+        expires 1M;
         alias {{pillar.django.static_path}};
     }
 
@@ -23,6 +24,17 @@ server {
     listen 80;
     server_name www.jsatt.com;
     rewrite ^ http://jsatt.com$request_uri permanent;
+}
+
+
+server {
+    listen 80;
+    server_name static.jsatt.com;
+    root {{pillar.django.static_path}};
+    expires 1M;
+    location ~ ^.*\.(woff|svg|eot|ttf)$ {
+        add_header 'Access-Control-Allow-Origin' '*';
+    }
 }
 
 # vim: set filetype=nginx:

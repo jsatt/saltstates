@@ -9,9 +9,24 @@ nginx:
     service:
         - running
         - watch:
-            - file: /etc/nginx/sites-available/default
+            - file: /etc/nginx/*
+     
+/etc/nginx/nginx.conf:
     file.managed:
-        - name: /etc/nginx/sites-available/default
+        - source: salt://etc/nginx/nginx.conf
+        - template: jinja
+        - require:
+            - pkg: nginx
+
+/etc/nginx/mime.types:
+    file.managed:
+        - source: salt://etc/nginx/mime.types
+        - template: jinja
+        - require:
+            - pkg: nginx
+    
+/etc/nginx/sites-available/default:
+    file.managed:
         - source: salt://etc/nginx/sites-available/default
         - template: jinja
         - require:
