@@ -3,6 +3,8 @@ ALLOWED_HOSTS = ['{{pillar.django.allowed_host}}']
 
 SECRET_KEY = '{{pillar.django.secret_key}}'
 
+STATIC_URL = '{{pillar.django.static_url}}'
+
 {% set db_engine = pillar[pillar.django.db_engine] %}
 DATABASES = {
     'default': {
