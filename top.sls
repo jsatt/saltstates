@@ -16,7 +16,7 @@ base:
         #- conaff
         #- spotify
         #- audiokonverter
-        #- system76
+        - system76
     'mrlittlejeans':
         - base
         - users
@@ -34,7 +34,7 @@ base:
         #- conaff
         #- spotify
         #- audiokonverter
-        #- system76
+        - system76
     'mapplethorpe':
         - base
         - users
