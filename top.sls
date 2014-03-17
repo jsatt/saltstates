@@ -1,7 +1,7 @@
 base:
     'dignan':
         - base
-        #- users
+        - users
         #- devbox
         #- personal
         #- media
@@ -19,7 +19,7 @@ base:
         #- system76
     'mrlittlejeans':
         - base
-        #- users
+        - users
         #- devbox
         #- personal
         #- media
@@ -37,7 +37,7 @@ base:
         #- system76
     'mapplethorpe':
         - base
-        #- users
+        - users
         #- devbox
         #- personal
         #- media
@@ -52,6 +52,7 @@ base:
         #- audiokonverter
     'jsattcom':
         - base
+        - users
         #- python
         #- nginx
         #- postgresql
