@@ -4,7 +4,7 @@ base:
         - users
         - devbox
         - pc
-        #- python
+        - python
         #- nginx
         #- redis
         #- mysql
@@ -21,7 +21,7 @@ base:
         - users
         - devbox
         - pc
-        #- python
+        - python
         #- nginx
         #- redis
         #- mysql
@@ -38,7 +38,7 @@ base:
         - users
         - devbox
         - pc
-        #- python
+        - python
         #- nginx
         #- redis
         #- postgresql
