@@ -2,9 +2,8 @@ base:
     'dignan':
         - base
         - users
-        #- devbox
-        #- personal
-        #- media
+        - devbox
+        - pc
         #- python
         #- nginx
         #- redis
@@ -20,9 +19,8 @@ base:
     'mrlittlejeans':
         - base
         - users
-        #- devbox
-        #- personal
-        #- media
+        - devbox
+        - pc
         #- python
         #- nginx
         #- redis
@@ -38,9 +36,8 @@ base:
     'mapplethorpe':
         - base
         - users
-        #- devbox
-        #- personal
-        #- media
+        - devbox
+        - pc
         #- python
         #- nginx
         #- redis
