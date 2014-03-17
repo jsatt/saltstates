@@ -4,7 +4,7 @@
 
 remove_bloat:
     pkg.purged:
-        - names:
+        - pkgs:
             - akregator
             - bluedevil
             - dragonplayer
@@ -43,7 +43,7 @@ utils:
             - terminator
             - thunderbird
             - vim
-        - required:
-            - pkg.removed: remove_bloat
+        - require:
+            - pkg: remove_bloat
 
 # vim:set ft=yaml:
