@@ -6,7 +6,7 @@ base:
         - pc
         - python
         - nginx
-        #- redis
+        - redis
         - mysql
         #- openvpn
         - vcs
@@ -22,7 +22,7 @@ base:
         - pc
         - python
         - nginx
-        #- redis
+        - redis
         - mysql
         #- openvpn
         - postgresql
@@ -39,7 +39,7 @@ base:
         - pc
         - python
         - nginx
-        #- redis
+        - redis
         - postgresql
         - vcs
         #- ufw
