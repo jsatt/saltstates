@@ -25,7 +25,7 @@ base:
         #- redis
         - mysql
         #- openvpn
-        #- postgresql
+        - postgresql
         #- vcs
         #- ufw
         - conaff
@@ -40,7 +40,7 @@ base:
         - python
         - nginx
         #- redis
-        #- postgresql
+        - postgresql
         #- vcs
         #- ufw
         #- healthgeist
