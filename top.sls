@@ -7,9 +7,8 @@ base:
         - python
         - nginx
         #- redis
-        #- mysql
+        - mysql
         #- openvpn
-        #- postgresql
         #- vcs
         #- ufw
         - conaff
@@ -24,7 +23,7 @@ base:
         - python
         - nginx
         #- redis
-        #- mysql
+        - mysql
         #- openvpn
         #- postgresql
         #- vcs
