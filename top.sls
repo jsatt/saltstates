@@ -5,14 +5,14 @@ base:
         - devbox
         - pc
         - python
-        #- nginx
+        - nginx
         #- redis
         #- mysql
         #- openvpn
         #- postgresql
         #- vcs
         #- ufw
-        #- conaff
+        - conaff
         #- spotify
         #- audiokonverter
         - system76
@@ -22,14 +22,14 @@ base:
         - devbox
         - pc
         - python
-        #- nginx
+        - nginx
         #- redis
         #- mysql
         #- openvpn
         #- postgresql
         #- vcs
         #- ufw
-        #- conaff
+        - conaff
         #- spotify
         #- audiokonverter
         - system76
@@ -39,7 +39,7 @@ base:
         - devbox
         - pc
         - python
-        #- nginx
+        - nginx
         #- redis
         #- postgresql
         #- vcs

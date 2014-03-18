@@ -1,0 +1,30 @@
+upstream gunicorn_conaff {
+    server 127.0.0.1:8000;
+}
+
+server {
+    listen 80;
+    client_max_body_size 4G;
+    server_name conaff.com conaff;
+
+    location /files/ {
+        alias /home/jsatt/dev/conaff/files/local_files/;
+    }
+
+    location /media/ {
+        alias /home/jsatt/dev/conaff/django/consumeraffairs/media/;
+    }
+
+    location ~ ^/(css|img|js)/(.*)$ {
+        alias /home/jsatt/dev/conaff/django/consumeraffairs/media/$1/$2;
+    }
+
+    location / {
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header Host $http_host;
+        proxy_redirect off;
+        proxy_pass http://gunicorn_conaff;
+    }
+}
+
+# vim: set filetype=nginx:
