@@ -43,7 +43,7 @@ base:
         - postgresql
         - vcs
         #- ufw
-        #- healthgeist
+        - healthgeist
         #- spotify
         #- audiokonverter
     'jsattcom':
