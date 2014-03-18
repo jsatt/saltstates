@@ -9,7 +9,7 @@ base:
         #- redis
         - mysql
         #- openvpn
-        #- vcs
+        - vcs
         #- ufw
         - conaff
         #- spotify
@@ -26,7 +26,7 @@ base:
         - mysql
         #- openvpn
         - postgresql
-        #- vcs
+        - vcs
         #- ufw
         - conaff
         #- spotify
@@ -41,7 +41,7 @@ base:
         - nginx
         #- redis
         - postgresql
-        #- vcs
+        - vcs
         #- ufw
         #- healthgeist
         #- spotify
