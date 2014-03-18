@@ -1,5 +1,6 @@
 include: 
     - postgresql
+    - python.pil_deps
 
 healthgeist:
     postgres_database.present:

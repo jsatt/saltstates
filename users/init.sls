@@ -5,7 +5,8 @@ wheel:
     file.append:
         - text: |
             %wheel ALL=(ALL) NOPASSWD:ALL
+
 include:
-    - jsatt
+    - users.jsatt
 
 # vim:set ft=yaml:

@@ -5,6 +5,7 @@
 utils:
     pkg.installed:
         - pkgs:
+            - build-essential
             - curl
             - htop
             - screen

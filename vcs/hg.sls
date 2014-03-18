@@ -1,10 +1,3 @@
-git:
-    pkg.installed:
-        - pkgs:
-            - git
-            - gitk
-            - git-gui
-
 mercurial:
     pkgrepo.managed:
         - ppa: mercurial-ppa/releases

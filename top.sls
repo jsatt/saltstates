@@ -2,8 +2,7 @@ base:
     'dignan':
         - base
         - users
-        - devbox
-        - pc
+        - desktop
         - python
         - nginx
         - redis
@@ -13,13 +12,13 @@ base:
         #- ufw
         - conaff
         - media.spotify
-        - audiokonverter
-        - system76
+        - media.audiokonverter
+        - browsers
+        - virtualbox
     'mrlittlejeans':
         - base
         - users
-        - devbox
-        - pc
+        - desktop
         - python
         - nginx
         - redis
@@ -30,13 +29,13 @@ base:
         #- ufw
         - conaff
         - media.spotify
-        - audiokonverter
-        - system76
+        - media.audiokonverter
+        - browsers
+        - virtualbox
     'mapplethorpe':
         - base
         - users
-        - devbox
-        - pc
+        - desktop
         - python
         - nginx
         - redis
@@ -45,7 +44,9 @@ base:
         #- ufw
         - healthgeist
         - media.spotify
-        - audiokonverter
+        - media.audiokonverter
+        - browsers
+        - virtualbox
     'jsattcom':
         - base
         - users

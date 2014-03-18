@@ -1,3 +1,7 @@
+include:
+    - openvpn
+    - python.pil_deps
+
 # nltk
 /usr/share/nltk_data:
     file.symlink:
@@ -24,9 +28,6 @@
             - file: /etc/nginx/sites-available/conaff
 
 #openvpn
-include:
-    - openvpn
-
 /etc/openvpn/mgmt.conf:
     file.managed:
         - source: salt://conaff/mgmt.ovpn
