@@ -8,7 +8,7 @@ base:
         - nginx
         - redis
         - mysql
-        #- openvpn
+        - openvpn
         - vcs
         #- ufw
         - conaff
@@ -24,7 +24,7 @@ base:
         - nginx
         - redis
         - mysql
-        #- openvpn
+        - openvpn
         - postgresql
         - vcs
         #- ufw
