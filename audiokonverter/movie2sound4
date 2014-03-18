@@ -1,0 +1,266 @@
+#!/bin/bash
+# (c) Jochen Puchalla 2004-2009
+
+FLACOPTS="-f -6 --replay-gain"
+MPLAYEROPTS="-really-quiet -nolirc -nojoystick -nortc -vo null"
+
+test -z $(which kde4-config) && PATH=${PATH}:${HOME}/.kde/bin || PATH=${PATH}:$(kde4-config --localprefix)/bin
+
+test -z $(which mplayer) &&
+(	echo "Program mplayer not found. Please install it into your PATH."
+	kdialog --error "Program mplayer not found. Please install it into your PATH." ) && exit
+
+function perror()
+{
+	echo "Program $1 not found. Skipping file."
+	kdialog --passivepopup "Program $1 not found. Skipping file." 3
+}
+
+function names()
+{
+	filedir=$(dirname "$1") # directory without filename
+	filename=$(basename "$1") # name without directory
+	shortname=$(echo $filename|sed 's/\.[^\.]*$//g') # delete suffix, version by Dimitrios Lampridis
+#	shortname=$(echo $filename|sed 's/\..*$//g') # delete suffix
+	tempfile="/tmp/audiokonv${RANDOM}.wav"
+	while test -e ${tempfile} ; do tempfile="/tmp/audiokonv${RANDOM}.wav" ; done
+	echo -e "\n# Now converting: $1 \n\n# DISPLAYED REMAINING TIME MAY BE WRONG!\n"
+}
+
+function showprop()
+{
+	echo "Properties of audio track of ${1}: " > /tmp/movie2sound.info
+	mplayer ${MPLAYEROPTS} -ao null -frames 1 -identify "${1}" |grep AUDIO|tail -4|sed 's/ID_//g'|sed 's/AUDIO_NCH/channels/g'|sed 's/AUDIO_RATE/sampling frequency [Hz]/g'|sed 's/AUDIO_BITRATE/bitrate/g'|sed 's/AUDIO_CODEC/format/g' >> /tmp/movie2sound.info
+	kdialog --msgbox "$(cat /tmp/movie2sound.info)" 5
+}
+
+function dumpaudio()
+{
+	test -z $(which lame) && perror lame && return
+	names "$1"
+
+	mplayer ${MPLAYEROPTS} -ao null -frames 1 -identify "${1}" |grep AUDIO_CODEC|tail -1|sed 's/ID_AUDIO_CODEC=//g' > /tmp/movie2sound.ext
+	EXT=$(cat /tmp/movie2sound.ext)
+	if [ $EXT = "ffwmav" ] || [ $EXT = "ffwmav1" ] || [ $EXT = "ffwmav2" ] || [ $EXT = "ffwmav3" ]
+		then EXT=wma
+	fi
+	if [ $EXT = "faad" ]
+		then EXT=aac
+	fi
+	mp3name="${encdir}/${EXTRA}/${shortname}.${EXT}"
+
+	nice -10 ffmpeg -y -i "$1" -acodec copy "${mp3name}"
+}
+
+function vidtoogg()
+{
+	test -z $(which oggenc) && perror oggenc && return
+	names "$1"
+	oggname="${shortname}.ogg"
+
+#	mkfifo ${tempfile}
+	nice -10 ffmpeg -i "$1" "${tempfile}" &> /dev/null && nice -10 oggenc ${ifmono} -q ${quality} ${tempfile} -o "${encdir}/${EXTRA}/${oggname}"
+	rm -f "${tempfile}"
+
+	# create vorbis comments
+	test ! -z "$(which vorbiscomment)" &&
+	{
+		echo "Writing metadata..."
+		vorbiscomment -t "TITLE=${shortname}" -a "${encdir}/${EXTRA}/${oggname}"
+		echo "Done."
+	}
+}
+
+function vidtomp3()
+{
+	test -z $(which lame) && perror lame && return
+	names "$1"
+	mp3name="${encdir}/${EXTRA}/${shortname}.mp3"
+
+	test ${quality} -gt 9 && nice -10 ffmpeg -i "$1" "${tempfile}" &> /dev/null && nice -10 lame -b ${quality} -h ${tempfile} "${mp3name}"
+	test ${quality} -lt 10 && nice -10 ffmpeg -i "$1" "${tempfile}" &> /dev/null && nice -10 lame -v -V ${quality} -h ${tempfile} "${mp3name}"
+	rm -f "${tempfile}"
+
+	# get/set metadata:
+	test ! -z "$(which id3v2)" &&
+	{
+		echo "Writing metadata..."
+		id3v2 --song="${shortname}" "${mp3name}"
+		echo "Done."
+	}
+}
+
+function vidtoflac()
+{
+	test -z $(which flac) && perror flac && return
+	names "$1"
+	flacname="${encdir}/${EXTRA}/${shortname}.flac"
+
+	echo -e "\n# Extracting audio...   please wait\n"
+	nice -10 ffmpeg -i "$1" "${tempfile}" &> /dev/null
+	echo -e "\n# Now encoding audio. \n"
+	nice -10 flac ${FLACOPTS} -T TITLE="${shortname}" --output-name="${flacname}" "${tempfile}"
+	rm -f "${tempfile}"
+}
+
+function vidtoaac()
+{
+	test -z $(which faac) && perror faac && return
+	names "$1"
+	aacname="${encdir}/${EXTRA}/${shortname}.aac"
+
+	nice -10 ffmpeg -i "$1" "${tempfile}" &> /dev/null && nice -10 faac -q ${quality} -o "${aacname}" "${tempfile}"
+	rm -f "${tempfile}"
+}
+
+function vidtoipod()
+{
+	test -z $(which faac) && perror faac && return
+	names "$1"
+	m4aname="${encdir}/${EXTRA}/${shortname}.m4a"
+
+	nice -10 ffmpeg -i "$1" "${tempfile}" &> /dev/null && nice -10 faac -w -q ${quality} -o "${m4aname}" "${tempfile}"
+	rm -f "${tempfile}"
+}
+
+function vidtowav()
+{
+	names "$1"
+	wavname="${encdir}/${EXTRA}/${shortname}.wav"
+
+	echo "Extracting $1 to $wavname..."
+	nice -10 ffmpeg -i "$1" "${wavname}" &> /dev/null
+}
+
+
+###################################### MAIN
+
+test -z "$1" && echo "Use  movie2sound -h  for help" && exit 1
+
+until [ -f "$1" ] || [ -d "$1" ]
+do
+        case "$1" in
+                -t) shift;
+                    enctype="$1";;
+                -h) echo -e "\nusage:\n
+movie2sound       -t s file  to show properties of audio track
+movie2sound       -t d file  to copy audio track to a file
+movie2sound -q 64 -t m file  for 64kBit MP3
+movie2sound -q 1  -t m file  for high-quality VBR MP3
+movie2sound -q 4  -t o file  for mid-quality OGG
+movie2sound -q 80 -t a file  for mid-quality AAC
+movie2sound -q 80 -t i file  for mid-quality M4A for iPod
+movie2sound       -t w file  for WAV
+movie2sound       -t f file  for FLAC\n";exit;;
+                -q) shift;
+                    quality="$1";;
+#                -m) shift;
+#                    mono="$1";;
+                *) ## Assume this is a file
+                    ## Prompt for any missing options
+                    ## or use default values
+                    ## do makeogg or makemp3 as appropriate
+
+                        ;;
+        esac
+        shift
+done
+
+if [ "${enctype}" = "s" ]
+	then
+		until [ -z "$1" ]  # Until all parameters are used up...
+		do
+			if [ -f "$1" ] # ALL FILES
+			then
+				showprop "$1"
+			fi
+		shift
+		done
+exit
+fi
+
+# Select destination directory, use last selected
+#decdir=$HOME
+#encdir=$HOME
+MQUAL=128
+OQUAL=4
+AQUAL=80
+source "$(kde4-config --localprefix)/share/config/kwerc"
+test -z $encdir && encdir=$HOME
+test -z $decdir && decdir=$HOME
+encdir=$(kdialog --title "Where shall I write the new file(s)?" --getexistingdirectory $encdir)
+while test ! -w "$encdir"
+do
+	kdialog --error "You are not allowed to write in this directory"
+	encdir=$(kdialog --title "Where shall I write the new file(s)?" --getexistingdirectory $HOME)
+done
+# Save directories
+echo "encdir=${encdir}" > $(kde4-config --localprefix)/share/config/kwerc
+echo "decdir=${decdir}" >> $(kde4-config --localprefix)/share/config/kwerc
+echo "MQUAL=${MQUAL}" >> $(kde4-config --localprefix)/share/config/kwerc
+echo "AQUAL=${AQUAL}" >> $(kde4-config --localprefix)/share/config/kwerc
+echo "OQUAL=${OQUAL}" >> $(kde4-config --localprefix)/share/config/kwerc
+
+if [ -z $enctype ]
+	then enctype=$(kdialog --title audiokonverter --menu Format m MP3 o OGG a AAC i M4A f FLAC w WAV 2> /dev/null)
+fi
+
+
+if [ -z $quality ]
+then
+	if [ $enctype = "m" ]
+	then
+		quality=$(kdialog --title audiokonverter --combobox "Bitrate or VBR quality" $MQUAL 32 40 48 56 64 80 96 112 128 160 192 224 256 320 9 8 7 6 5 4 3 2 1 0 2> /dev/null)
+		test -z "$quality" && exit
+		echo "MQUAL=${quality}" >> $(kde4-config --localprefix)/share/config/kwerc
+		kdialog --title audiokonverter --yesno "Keep stereo (if any)?" 2> /dev/null
+		notmono=$?
+		if [ "${notmono}" = "1" ]   # 1 means no
+		then ifmono="-a"
+		fi
+	fi
+
+	if [ $enctype = "o" ]
+	then
+		quality=$(kdialog --title audiokonverter --combobox Quality $OQUAL 0 1 2 3 4 5 6 7 8 9 10 2> /dev/null)
+		test -z "$quality" && exit
+		echo "OQUAL=${quality}" >> $(kde4-config --localprefix)/share/config/kwerc
+		kdialog --title audiokonverter --yesno "Keep stereo (if any)?" 2> /dev/null
+		notmono=$?
+		if [ "${notmono}" = "1" ]   # 1 means no
+		then ifmono="--downmix"
+		fi
+	fi
+
+	if [ $enctype = "a" ] || [ $enctype = "i" ]
+	then
+		quality=$(kdialog --title audiokonverter --combobox Quality $AQUAL 30 50 80 120 180 270 400  2> /dev/null)
+		test -z "$quality" && exit
+		echo "AQUAL=${quality}" >> $(kde4-config --localprefix)/share/config/kwerc
+	fi
+fi
+
+until [ -z "$1" ]  # Until all parameters are used up...
+do
+	if [ -f "$1" ] # ALL FILES
+	then
+		export EXTRA="" # do not create destination directory
+
+		case "$enctype" in
+			s) showprop "$1";;
+			d) dumpaudio "$1";;
+			m) vidtomp3 "$1";;
+			o) vidtoogg "$1";;
+			a) vidtoaac "$1";;
+			i) vidtoipod "$1";;
+			f) vidtoflac "$1";;
+			w) vidtowav "$1";;
+			*) ;;
+		esac
+	fi
+
+shift
+done
+
+
+kdialog --msgbox "Encoding finished!"

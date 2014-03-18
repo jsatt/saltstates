@@ -1,0 +1,57 @@
+[Desktop Entry]
+Type=Service
+ServiceTypes=KonqPopupMenu/Plugin
+MimeType=video/avi;video/mp4;video/mpeg;video/msvideo;video/ogg;video/quicktime;video/theora;video/vnd.rn-realvideo;application/vnd.rn-realvideo;video/x-matroska;video/x-mpeg;video/x-mpeg2;video/x-ms-asf;video/x-msvideo;video/x-ms-wmv;video/x-ogg;video/x-ogm;video/x-quicktime;video/x-theora;video/x-avi;video/x-flv
+Actions=show;dump;mp3;ogg;flac;ipod;wav
+X-KDE-Submenu=extract audio to
+X-KDE-Submenu[de]=Tonspur umwandeln in
+X-KDE-Submenu[fr]=Extraire la piste audio au format...
+X-KDE-Submenu[es]=Extraer pista de audio en...
+Encoding=UTF8
+
+[Desktop Action show]
+Name=show properties only
+Name[de]=zeige nur Eigenschaften
+Icon=sound
+Exec=movie2sound4 -t s %F
+
+[Desktop Action dump]
+Name=an audio file, copying only
+Name[de]=eine Audio-Datei, als Kopie
+Icon=sound
+Exec=konsole -e movie2sound4 -t d %F
+
+[Desktop Action mp3]
+Name=MP3
+Icon=sound
+Exec=konsole -e movie2sound4 -t m %F
+
+[Desktop Action ogg]
+Name=OGG
+Icon=sound
+Exec=konsole -e movie2sound4 -t o %F
+
+[Desktop Action flac]
+Name=FLAC
+Icon=sound
+Exec=konsole -e movie2sound4 -t f %F
+
+#[Desktop Action aac]
+#Name=AAC
+#Icon=sound
+#Exec=konsole -e movie2sound4 -t a %F
+
+[Desktop Action ipod]
+Name=M4A for iPod (AAC)
+Name[de]=M4A für iPod (AAC)
+Name[nl]=M4A voor iPod (AAC)
+Name[fr]=M4A pour iPod (AAC)
+Name[it]=M4A per iPod (AAC)
+Name[es]=M4A para iPod (AAC)
+Icon=sound
+Exec=konsole -e movie2sound4 -t i %F
+
+[Desktop Action wav]
+Name=WAV
+Icon=sound
+Exec=konsole -e movie2sound4 -t w %F

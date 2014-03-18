@@ -14,7 +14,7 @@ nginx:
 
 /etc/nginx/sites-available/default:
     file.managed:
-        - source: salt://configs/nginx/site-default
+        - source: salt://nginx/site-default
         - require:
             - pkg: nginx
 

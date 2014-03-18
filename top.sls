@@ -12,8 +12,8 @@ base:
         - vcs
         #- ufw
         - conaff
-        #- spotify
-        #- audiokonverter
+        - media.spotify
+        - audiokonverter
         - system76
     'mrlittlejeans':
         - base
@@ -29,8 +29,8 @@ base:
         - vcs
         #- ufw
         - conaff
-        #- spotify
-        #- audiokonverter
+        - media.spotify
+        - audiokonverter
         - system76
     'mapplethorpe':
         - base
@@ -44,8 +44,8 @@ base:
         - vcs
         #- ufw
         - healthgeist
-        #- spotify
-        #- audiokonverter
+        - media.spotify
+        - audiokonverter
     'jsattcom':
         - base
         - users

@@ -1,6 +1,6 @@
 /etc/salt/minion:
     file.managed:
-        - source: salt://configs/salt/minion
+        - source: salt://salt/minion
 
 utils:
     pkg.installed:

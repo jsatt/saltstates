@@ -1,10 +1,10 @@
 /etc/mysql/my.cnf:
     file.managed:
-        - source: salt://configs/mysql/my.cnf
+        - source: salt://mysql/my.cnf
 
 /etc/apparmor.d/usr.sbin.mysqld:
     file.managed:
-        - source: salt://configs/mysql/apparmor
+        - source: salt://mysql/apparmor
         - require:
             - file: /etc/mysql/my.cnf
 

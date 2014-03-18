@@ -1,0 +1,90 @@
+[Desktop Entry]
+Type=Service
+ServiceTypes=KonqPopupMenu/Plugin,audio/x-wav,audio/aac,audio/x-flac,audio/x-mp3,audio/mpeg,audio/mp3,audio/vorbis,inode/directory,audio/x-ms-wma,audio/vnd.rn-realaudio,application/vnd.rn-realaudio,audio/mp4,audio/x-musepack,audio/x-wavpack,audio/x-m4a,audio/x-real-audio,audio/x-vorbis+ogg,audio/amr,audio/x-amr
+# MimeType=audio/x-wav;audio/aac;audio/x-flac;audio/x-mp3;audio/mpeg;audio/mp3;audio/vorbis;inode/directory;audio/x-ms-wma;audio/vnd.rn-realaudio;application/vnd.rn-realaudio;audio/mp4;audio/x-musepack;audio/x-wavpack;audio/x-m4a;audio/x-real-audio
+Actions=mp3;ogg;ipod;flac;wav
+# X-KDE-Submenu=convert to
+# X-KDE-Submenu[de]=umwandeln in
+# X-KDE-Submenu[nl]=zet om in
+# X-KDE-Submenu[fr]=Convertir au format...
+# X-KDE-Submenu[it]=convertire a
+# X-KDE-Submenu[es]=Convertir al formato...
+X-KDE-Submenu=Convert To
+X-KDE-Submenu[ar]=حول إلى
+X-KDE-Submenu[be]=Канвертаваць у
+X-KDE-Submenu[ca]=Converteix a
+X-KDE-Submenu[cs]=Převést do
+X-KDE-Submenu[da]=Konvertér til
+X-KDE-Submenu[de]=Umwandeln in
+X-KDE-Submenu[el]=Μετατροπή σε
+X-KDE-Submenu[es]=Convertir a
+X-KDE-Submenu[et]=Teisendamine
+X-KDE-Submenu[eu]=Hontara bihurtu
+X-KDE-Submenu[fi]=Muunna muotoa
+X-KDE-Submenu[fr]=Convertir en
+X-KDE-Submenu[ga]=Tiontaigh Go
+X-KDE-Submenu[gl]=Converter en
+X-KDE-Submenu[it]=Converti in
+X-KDE-Submenu[ja]=変換
+X-KDE-Submenu[km]=បម្លែង​ទៅ
+X-KDE-Submenu[ko]=다음으로 변환
+X-KDE-Submenu[ku]=Veguhezîne Ji
+X-KDE-Submenu[lt]=Konvertuoti į
+X-KDE-Submenu[lv]=Pārveidot uz
+X-KDE-Submenu[nb]=Konverter til
+X-KDE-Submenu[nds]=Ümwanneln na
+X-KDE-Submenu[nl]=Converteren naar
+X-KDE-Submenu[nn]=Gjer om til
+X-KDE-Submenu[pa]=ਬਦਲੋ
+X-KDE-Submenu[pl]=Konwertuj do
+X-KDE-Submenu[pt]=Converter Para
+X-KDE-Submenu[pt_BR]=Converter Para
+X-KDE-Submenu[ro]=Convertește la
+X-KDE-Submenu[ru]=Преобразовать в
+X-KDE-Submenu[sk]=Previesť do
+X-KDE-Submenu[sr]=Претвори у
+X-KDE-Submenu[sr@latin]=Pretvori u
+X-KDE-Submenu[sv]=Konvertera till
+X-KDE-Submenu[th]=แปลงเป็น
+X-KDE-Submenu[tr]=Dönüştür
+X-KDE-Submenu[uk]=Перетворити в
+X-KDE-Submenu[x-test]=xxConvert Toxx
+X-KDE-Submenu[zh_CN]=转换为
+X-KDE-Submenu[zh_TW]=轉換為
+Encoding=UTF8
+
+
+[Desktop Action mp3]
+Name=MP3
+Icon=audio-basic
+Exec=konsole -e audioconvert4 -t m %F
+
+[Desktop Action ogg]
+Name=OGG
+Icon=audio-basic
+Exec=konsole -e audioconvert4 -t o %F
+
+[Desktop Action flac]
+Name=FLAC
+Icon=audio-basic
+Exec=konsole -e audioconvert4 -t f %F
+
+#[Desktop Action aac]
+#Name=AAC
+#Icon=audio-basic
+#Exec=konsole -e audioconvert4 -t a %F
+
+[Desktop Action ipod]
+Name=M4A for iPod (AAC)
+Name[de]=M4A für iPod (AAC)
+Name[nl]=M4A voor iPod (AAC)
+Name[fr]=M4A pour iPod (AAC)
+Name[it]=M4A per iPod (AAC)
+Name[es]=M4A para iPod (AAC)
+Icon=audio-basic
+Exec=konsole -e audioconvert4 -t i %F
+
+[Desktop Action wav]
+Name=WAV
+Icon=audio-basic
+Exec=konsole -e anytowav4 %F

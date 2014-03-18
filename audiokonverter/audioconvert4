@@ -1,0 +1,1269 @@
+#!/bin/bash
+# (c) Jochen Puchalla 2004-2010
+
+# default values:
+DONTASKFORMAT=m # MP3 is default output format for dontask mode
+MQUAL=128
+OQUAL=4
+AQUAL=80
+dontask=0
+
+FLACOPTS="-f -6 --replay-gain"
+MPLAYEROPTS="-really-quiet -nolirc -nojoystick -nortc -vo null"
+LAMEQUAL="-h" 		# you can use "-q 0" here
+
+test ! -z $(which kde4-config) && PATH=${PATH}:$(kde4-config --localprefix)/bin
+test -z $(which kde4-config) && PATH=${PATH}:${HOME}/.kde/bin
+
+function perror()
+{
+	echo "Program $1 not found. Skipping file."
+	kdialog --passivepopup "Program $1 not found. Skipping file." 3
+}
+
+function names()
+{
+	filedir=$(dirname "$1") # directory without filename
+	filename=$(basename "$1") # name without directory
+	shortname="$(echo $filename|sed 's/\.[^\.]*$//g')" # delete suffix, version by Dimitrios Lampridis
+#	shortname=$(echo $filename|sed 's/\..*$//g') # delete suffix
+	tempfile="/tmp/audiokonv${RANDOM}.wav"
+	while test -e ${tempfile} ; do tempfile="/tmp/audiokonv${RANDOM}.wav" ; done
+	echo -e "\n# Now converting: $1 \n"
+}
+
+function clearmeta()
+{
+	ALBUM=""
+	ARTIST=""
+	COMMENT=""
+	YEAR=""
+	TITLE=""
+	GENRE=""
+	TRACKNUMBER=""
+}
+
+function getmetaflac()
+{
+	clearmeta
+	test -z "$(which metaflac)" && return
+	echo "Getting metadata from FLAC"
+	ALBUM="$(metaflac --show-tag=ALBUM "$1" |sed 's/.*=//g')"
+	ARTIST="$(metaflac --show-tag=ARTIST "$1" |sed 's/.*=//g')"
+	COMMENT="$(metaflac --show-tag=COMMENT "$1" |head -1|sed 's/.*=//g')"
+	YEAR="$(metaflac --show-tag=YEAR "$1" |sed 's/.*=//g')"
+	test -z "${YEAR}" && YEAR="$(metaflac --show-tag=DATE "$1" |sed 's/.*=//g')"
+	TITLE="$(metaflac --show-tag=TITLE "$1" |sed 's/.*=//g')"
+	GENRE="$(metaflac --show-tag=GENRE "$1" |sed 's/.*=//g')"
+	TRACKNUMBER="$(metaflac --show-tag=TRACKNUMBER "$1" |sed 's/.*=//g')"
+}
+
+function getmetavorbis()
+{
+	clearmeta
+	test -z "$(which vorbiscomment)" && return
+	echo "Getting metadata from OGG"
+	ALBUM="$(vorbiscomment -l "$1" |grep -i ^ALBUM=|sed 's/.*=//g')"
+	ARTIST="$(vorbiscomment -l "$1" |grep -i ^ARTIST=|sed 's/.*=//g')"
+	COMMENT="$(vorbiscomment -l "$1" |grep -i ^COMMENT=|sed 's/.*=//g')"
+	YEAR="$(vorbiscomment -l "$1" |grep -i ^DATE=|sed 's/.*=//g')"
+	TITLE="$(vorbiscomment -l "$1" |grep -i ^TITLE=|sed 's/.*=//g')"
+	GENRE="$(vorbiscomment -l "$1" |grep -i ^GENRE=|sed 's/.*=//g')"
+	TRACKNUMBER="$(vorbiscomment -l "$1" |grep -i ^TRACKNUMBER=|sed 's/.*=//g')"
+}
+
+function getmetamp3()
+{
+	clearmeta
+	test -z "$(which id3info)" && return
+	echo "Getting metadata from MP3"
+	ALBUM="$(id3info "$1" |grep ^===\ TALB|head -1|sed 's/.*:\ //g')"
+	ARTIST="$(id3info "$1" |grep ^===\ TPE1|head -1|sed 's/.*:\ //g')"
+	COMMENT="$(id3info "$1" |grep ^===\ COMM|head -1|sed 's/.*:\ //g')"
+	YEAR="$(id3info "$1" |grep ^===\ TYER|head -1|sed 's/.*:\ //g')"
+	TITLE="$(id3info "$1" |grep ^===\ TIT2|head -1|sed 's/.*:\ //g')"
+	GENRE="$(id3info "$1" |grep ^===\ TCON|head -1|sed 's/.*:\ //g')"
+	TRACKNUMBER="$(id3info "$1" |grep ^===\ TRCK|head -1|sed 's/.*:\ //g')"
+}
+
+function getmetaape()
+{
+	clearmeta
+	test -z "$(which apetag)" && return
+	echo "Getting ape metadata"
+	ALBUM="$(apetag -i "$1" |grep -i Album|sed 's/"Album" "//g'|sed 's/"//g')"
+	ARTIST="$(apetag -i "$1" |grep -i Artist|sed 's/"Artist" "//g'|sed 's/"//g')"
+	COMMENT="$(apetag -i "$1" |grep -i Comment|sed 's/"Comment" "//g'|sed 's/"//g')"
+	YEAR="$(apetag -i "$1" |grep -i Year|sed 's/"Year" "//g'|sed 's/"//g')"
+	TITLE="$(apetag -i "$1" |grep -i Title|sed 's/"Title" "//g'|sed 's/"//g')"
+	GENRE="$(apetag -i "$1" |grep -i Genre|sed 's/"Genre" "//g'|sed 's/"//g')"
+	TRACKNUMBER="$(apetag -i "$1" |grep -i Track|sed 's/"Track" "//g'|sed 's/"//g')"
+}
+
+function writemetamp3()
+{
+	test ! -z "$(which id3v2)" &&
+	id3v2 --artist="${ARTIST}" --album="${ALBUM}" --song="${TITLE}" --comment="${COMMENT}" --genre="${GENRE}" --year="${YEAR}" --track="${TRACKNUMBER}" "${mp3name}" &&
+	echo "Wrote metadata."
+}
+
+function writemetavorbis()
+{
+	test ! -z "$(which vorbiscomment)" &&
+	vorbiscomment -t "ARTIST=${ARTIST}" -t "ALBUM=${ALBUM}" -t "TITLE=${TITLE}" -t "COMMENT=${COMMENT}" -t "DATE=${YEAR}" -t "GENRE=${GENRE}" -t "TRACKNUMBER=${TRACKNUMBER}" -a "$1" &&
+	echo "Wrote metadata."
+}
+
+function writemetaape()
+{
+	test ! -z "$(which apetag)" &&
+	apetag -i "$1" -m overwrite -p Artist="${ARTIST}" -p Album="${ALBUM}" -p Title="${TITLE}" -p Comment="${COMMENT}" -p Genre="${GENRE}" -p Year="${YEAR}" -p Track="${TRACKNUMBER}"
+	echo "Wrote metadata."
+}
+
+function writemetaflac()
+{
+	test ! -z "$(which metaflac)" &&
+	metaflac --set-tag="Artist=${ARTIST}" --set-tag="Album=${ALBUM}" --set-tag="Title=${TITLE}" --set-tag="Comment=${COMMENT}" --set-tag="Genre=${GENRE}" --set-tag="Year=${YEAR}" --set-tag="Track=${TRACKNUMBER}" "$1"
+	echo "Wrote metadata."
+}
+
+### OGG
+
+function oggtoogg()
+{
+	test -z $(which oggdec) && perror oggdec && return
+	test -z $(which oggenc) && perror oggenc && return
+	oggname=${filename}
+	nice -10 oggdec "$1" --output=- | nice -10 oggenc ${ifmono} -q ${quality} - -o "${tempfile}"
+	getmetavorbis "$1"
+	writemetavorbis "${tempfile}"
+	mv -f "${tempfile}" "${encdir}/${EXTRA}/${oggname}"
+}
+
+function oggtomp3()
+{
+	test -z $(which oggdec) && perror oggdec && return
+	test -z $(which lame) && perror lame && return
+	mp3name="${encdir}/${EXTRA}/${shortname}.mp3"
+# echo mp3name is $mp3name
+	test ${quality} -gt 9 && nice -10 oggdec "${1}" --output=- | nice -10 lame -b ${quality} ${ifmono} ${LAMEQUAL} - "${mp3name}"
+	test ${quality} -lt 10 && nice -10 oggdec "${1}" --output=- | nice -10 lame -v -V ${quality} ${ifmono} ${LAMEQUAL} - "${mp3name}"
+	getmetavorbis "$1"
+	writemetamp3
+}
+
+function oggtoaac()
+{
+	test -z $(which oggdec) && perror oggdec && return
+	test -z $(which faac) && perror faac && return
+	aacname="${encdir}/${EXTRA}/${shortname}.aac"
+	nice -10 oggdec "$1" --output=- | nice -10 faac -q ${quality} -o "${aacname}" -
+}
+
+function oggtoipod()
+{
+	test -z $(which oggdec) && perror oggdec && return
+	test -z $(which faac) && perror faac && return
+	m4aname="${encdir}/${EXTRA}/${shortname}.m4a"
+	getmetavorbis "$1"
+	nice -10 oggdec "$1" --output=- | nice -10 faac -w --artist "${ARTIST}" --title "${TITLE}" --album "${ALBUM}" --year "${YEAR}" --comment "${COMMENT}" --genre "${GENRE}" --track "${TRACKNUMBER}" -q ${quality} -o "${m4aname}" -
+}
+
+function oggtoflac()
+{
+	echo -e "# OGG to FLAC only increases filesize. I won't do this.\n"
+	kdialog --passivepopup "OGG to FLAC only increases filesize. I won't do this." 3
+#	flacname="${encdir}/${EXTRA}/${shortname}.flac"
+#	getmetavorbis "$1"
+#	nice -10 oggdec "$1" --output="${tempfile}"
+#	nice -10 flac ${FLACOPTS} -T ARTIST="${ARTIST}" -T ALBUM="${ALBUM}" -T COMMENT="${COMMENT}" -T YEAR="${YEAR}" -T TITLE="${TITLE}" -T GENRE="${GENRE}" -T TRACKNUMBER="${TRACKNUMBER}" --output-name="${flacname}" ${tempfile}
+#	rm -f ${tempfile}
+}
+
+function oggtowv()
+{
+	echo -e "# OGG to Wavpack only increases filesize. I won't do this.\n"
+	kdialog --passivepopup "OGG to Wavpack only increases filesize. I won't do this." 3
+}
+
+### MP3
+
+function mp3toogg()
+{
+	test -z $(which lame) && perror lame && return
+	test -z $(which oggenc) && perror oggenc && return
+	oggname="${encdir}/${EXTRA}/${shortname}.ogg"
+	nice -10 lame --decode "$1" - | nice -10 oggenc ${ifmono} -q ${quality} - -o "${oggname}"
+	getmetamp3 "$1"
+	writemetavorbis "${oggname}"
+}
+
+function mp3tomp3()
+{
+	test -z $(which lame) && perror lame && return
+	mp3name=${filename}
+	test ${quality} -gt 9 && nice -10 lame --mp3input -b ${quality} ${ifmono} ${LAMEQUAL} "$1" "${tempfile}"
+	test ${quality} -lt 10 && nice -10 lame --mp3input -v -V ${quality} ${ifmono} ${LAMEQUAL} "$1" "${tempfile}"
+	test ! -z "$(which id3cp)" && id3cp "${1}" "${tempfile}" && echo "Copied ID3 tag."
+	mv -f "${tempfile}" "${encdir}/${EXTRA}/${mp3name}"
+}
+
+function mp3toaac()
+{
+	test -z $(which lame) && perror lame && return
+	test -z $(which faac) && perror faac && return
+	aacname="${encdir}/${EXTRA}/${shortname}.aac"
+	nice -10 lame --decode "$1" - | nice -10 faac -q ${quality} -o "${aacname}" -
+}
+
+function mp3toipod()
+{
+	test -z $(which lame) && perror lame && return
+	test -z $(which faac) && perror faac && return
+	m4aname="${encdir}/${EXTRA}/${shortname}.m4a"
+	getmetamp3 "$1"
+	nice -10 lame --decode "$1" - | nice -10 faac -w --artist "${ARTIST}" --title "${TITLE}" --album "${ALBUM}" --year "${YEAR}" --comment "${COMMENT}" --genre "${GENRE}" --track "${TRACKNUMBER}" -q ${quality} -o "${m4aname}" -
+}
+
+function mp3toflac()
+{
+	echo -e "# MP3 to FLAC only increases filesize. I won't do this.\n"
+	kdialog --passivepopup "MP3 to FLAC only increases filesize. I won't do this." 3
+#	flacname="${encdir}/${EXTRA}/${shortname}.flac"
+
+#	getmetamp3 "$1"
+
+#	nice -10 lame --decode "$1" ${tempfile}
+#	nice -10 flac ${FLACOPTS} --output-name="${flacname}" -T ARTIST="${ARTIST}" -T ALBUM="${ALBUM}" -T COMMENT="${COMMENT}" -T YEAR="${YEAR}" -T TITLE="${TITLE}" -T GENRE="${GENRE}" -T TRACKNUMBER="${TRACKNUMBER}" ${tempfile}
+
+#	rm -f ${tempfile}
+}
+
+function mp3towv()
+{
+	echo -e "# MP3 to Wavpack only increases filesize. I won't do this.\n"
+	kdialog --passivepopup "MP3 to Wavpack only increases filesize. I won't do this." 3
+}
+
+### FLAC
+
+function flactoogg()
+{
+	test -z $(which flac) && perror flac && return
+	test -z $(which oggenc) && perror oggenc && return
+	oggname="${encdir}/${EXTRA}/${shortname}.ogg"
+	nice -10 flac -d --stdout "$1" | nice -10 oggenc ${ifmono} -q ${quality} - -o "${oggname}"
+	getmetaflac "$1"
+	writemetavorbis "${oggname}"
+}
+
+function flactomp3()
+{
+	test -z $(which flac) && perror flac && return
+	test -z $(which lame) && perror lame && return
+	mp3name="${encdir}/${EXTRA}/${shortname}.mp3"
+	test ${quality} -gt 9 && nice -10 flac -d --stdout "$1" | nice -10 lame -b ${quality} ${ifmono} ${LAMEQUAL} - "${mp3name}"
+	test ${quality} -lt 10 && nice -10 flac -d --stdout "$1" | nice -10 lame -v -V ${quality} ${ifmono} ${LAMEQUAL} - "${mp3name}"
+	getmetaflac "$1"
+	writemetamp3
+}
+
+function flactoaac()
+{
+	test -z $(which flac) && perror flac && return
+	test -z $(which faac) && perror faac && return
+	aacname="${encdir}/${EXTRA}/${shortname}.aac"
+	nice -10 flac -d --stdout "$1" | nice -10 faac -q ${quality} -o "${aacname}" -
+}
+
+function flactoipod()
+{
+	test -z $(which flac) && perror flac && return
+	test -z $(which faac) && perror faac && return
+	m4aname="${encdir}/${EXTRA}/${shortname}.m4a"
+	getmetaflac "$1"
+	nice -10 flac -d --stdout "$1" | nice -10 faac -w --artist "${ARTIST}" --title "${TITLE}" --album "${ALBUM}" --year "${YEAR}" --comment "${COMMENT}" --genre "${GENRE}" --track "${TRACKNUMBER}" -q ${quality} -o "${m4aname}" -
+}
+
+function flactowv()
+{
+	test -z $(which flac) && perror flac && return
+	test -z $(which wavpack) && perror wavpack && return
+	wvname="${encdir}/${EXTRA}/${shortname}.wv"
+	getmetaflac "$1"
+	nice -10 flac -d --stdout "$1" | nice -10 wavpack -y -h  - "${wvname}"
+	writemetaape "${wvname}"
+}
+
+### AAC
+
+function aactoogg()
+{
+	test -z $(which faad) && perror faad && return
+	test -z $(which oggenc) && perror oggenc && return
+	oggname="${encdir}/${EXTRA}/${shortname}.ogg"
+	nice -10 faad -o - "$1" | nice -10 oggenc ${ifmono} -q ${quality} - -o "${oggname}"
+	rm -f "${tempfile}"
+}
+
+function aactomp3()
+{
+	test -z $(which faad) && perror faad && return
+	test -z $(which lame) && perror lame && return
+	mp3name="${encdir}/${EXTRA}/${shortname}.mp3"
+	test ${quality} -gt 9 && nice -10 faad -o - "$1" | nice -10 lame -b ${quality} ${ifmono} ${LAMEQUAL} - "${mp3name}"
+	test ${quality} -lt 10 && nice -10 faad -o - "$1" | nice -10 lame -v -V ${quality} ${ifmono} ${LAMEQUAL} - "${mp3name}"
+	rm -f "${tempfile}"
+}
+
+function aactoaac()
+{
+	test -z $(which faad) && perror faad && return
+	test -z $(which faac) && perror faac && return
+	aacname=${filename}
+	nice -10 faad -o - "$1" | nice -10 faac -q ${quality} -o "${tempfile}" -
+	mv -f "${tempfile}" "${encdir}/${EXTRA}/${aacname}"
+}
+
+function aactoipod()
+{
+	test -z $(which faad) && perror faad && return
+	test -z $(which faac) && perror faac && return
+	m4aname="${encdir}/${EXTRA}/${shortname}.m4a"
+	nice -10 faad -o - "$1" | nice -10 faac -w -q ${quality} -o "${m4aname}" -
+}
+
+function aactoflac()
+{
+	echo -e "# AAC or M4A to FLAC only increases filesize. I won't do this.\n"
+	kdialog --passivepopup "AAC or M4A to FLAC only increases filesize. I won't do this." 3
+#	flacname="${encdir}/${EXTRA}/${shortname}.flac"
+#	nice -10 faad -o "$tempfile" "$1"
+#	nice -10 flac ${FLACOPTS} --output-name="${flacname}" "$tempfile"
+#	rm -f "$tempfile"
+}
+
+function aactowv()
+{
+	echo -e "# AAC or M4A to Wavpack only increases filesize. I won't do this.\n"
+	kdialog --passivepopup "AAC or M4A to Wavpack only increases filesize. I won't do this." 3
+}
+
+### WAV
+
+function wavtoogg()
+{
+	test -z $(which oggenc) && perror oggenc && return
+	oggname="${encdir}/${EXTRA}/${shortname}.ogg"
+	nice -10 oggenc ${ifmono} -q ${quality} "$1" -o "${oggname}"
+	rm -f "${tempfile}"
+}
+
+function wavtomp3()
+{
+echo wavtomp3
+	test -z $(which lame) && perror lame && return
+	mp3name="${encdir}/${EXTRA}/${shortname}.mp3"
+	test ${quality} -gt 9 && nice -10 lame ${ifmono} -b ${quality} ${ifmono} ${LAMEQUAL} "$1" "${mp3name}"
+	test ${quality} -lt 10 && nice -10 lame ${ifmono} -v -V ${quality} ${ifmono} ${LAMEQUAL} "$1" "${mp3name}"
+	rm -f "${tempfile}"
+}
+
+function wavtoaac()
+{
+	test -z $(which faac) && perror faac && return
+	aacname="${encdir}/${EXTRA}/${shortname}.aac"
+	nice -10 faac -q ${quality} -o "${aacname}" "$1"
+	rm -f "${tempfile}"
+}
+
+function wavtoipod()
+{
+	test -z $(which faac) && perror faac && return
+	m4aname="${encdir}/${EXTRA}/${shortname}.m4a"
+	nice -10 faac -w -q ${quality} -o "${m4aname}" "$1"
+	rm -f "${tempfile}"
+}
+
+function wavtoflac()
+{
+	test -z $(which flac) && perror flac && return
+	flacname="${encdir}/${EXTRA}/${shortname}.flac"
+	nice -10 flac --replay-gain -f -6 "$1" --output-name="${flacname}"
+}
+
+function wavtowv()
+{
+	test -z $(which wavpack) && perror wavpack && return
+	wvname="${encdir}/${EXTRA}/${shortname}.wv"
+	nice -10 wavpack -h -y "$1" "$wvname"
+	rm -f "${tempfile}"
+}
+
+### AMR, WMA AND REAL AUDIO
+
+function real+wma2ogg()
+{
+	test -z $(which mplayer) && perror mplayer && return
+	test -z $(which oggenc) && perror oggenc && return
+	oggname="${encdir}/${EXTRA}/${shortname}.ogg"
+	mkfifo ${tempfile}
+	nice -10 mplayer ${MPLAYEROPTS} -ao pcm:file="${tempfile}" "$1" | nice -10 oggenc ${ifmono} -q ${quality} "${tempfile}" -o "${oggname}"
+	rm -f "${tempfile}"
+}
+
+function real+wma2mp3()
+{
+	test -z $(which mplayer) && perror mplayer && return
+	test -z $(which lame) && perror lame && return
+	mp3name="${encdir}/${EXTRA}/${shortname}.mp3"
+	mkfifo ${tempfile}
+	test ${quality} -gt 9 && nice -10 mplayer ${MPLAYEROPTS} -ao pcm:file="${tempfile}" "$1" | nice -10 lame -b ${quality} -h "${tempfile}" "${mp3name}"
+	test ${quality} -lt 10 && nice -10 mplayer ${MPLAYEROPTS} -ao pcm:file="${tempfile}" "$1" | nice -10 lame -v -V ${quality} -h "${tempfile}" "${mp3name}"
+	rm -f "${tempfile}"
+}
+
+function real+wma2aac()
+{
+	test -z $(which mplayer) && perror mplayer && return
+	test -z $(which faac) && perror faac && return
+	aacname="${encdir}/${EXTRA}/${shortname}.aac"
+	mkfifo ${tempfile}
+	nice -10 mplayer ${MPLAYEROPTS} -ao pcm:file="${tempfile}" "$1" | nice -10 faac -q ${quality} -o "${aacname}" "${tempfile}"
+	rm -f "${tempfile}"
+}
+
+function real+wma2ipod()
+{
+	test -z $(which mplayer) && perror mplayer && return
+	test -z $(which faac) && perror faac && return
+	aacname="${encdir}/${EXTRA}/${shortname}.aac"
+	mkfifo ${tempfile}
+	nice -10 mplayer ${MPLAYEROPTS} -ao pcm:file="${tempfile}" "$1" | nice -10 faac -w -q ${quality} -o "${aacname}" "${tempfile}"
+	rm -f "${tempfile}"
+}
+
+function real+wma2flac()
+{
+	echo -e "# AMR, RealAudio or WMA to FLAC only increases filesize. I won't do this.\n"
+	kdialog --passivepopup "RealAudio or WMA to FLAC only increases filesize. I won't do this." 3
+#	flacname="${encdir}/${EXTRA}/${shortname}.flac"
+#	nice -10 mplayer ${MPLAYEROPTS} -ao pcm:file="${tempfile}" "$1"
+#	nice -10 flac ${FLACOPTS} --output-name="${flacname}" "${tempfile}"
+#	rm -f "${tempfile}"
+}
+
+function real+wma2wv()
+{
+	echo -e "# AMR, RealAudio or WMA to Wavpack only increases filesize. I won't do this.\n"
+	kdialog --passivepopup "AMR, RealAudio or WMA to Wavpack only increases filesize. I won't do this." 3
+}
+
+### Musepack
+
+function mpctoogg()
+{
+	test -z $(which mppdec) && perror mppdec && return
+	test -z $(which oggenc) && perror oggenc && return
+	oggname="${encdir}/${EXTRA}/${shortname}.ogg"
+	getmetaape "$1"
+	nice -10 mppdec "$1" - | nice -10 oggenc ${ifmono} -q ${quality} - -o "${oggname}"
+	writemetavorbis "${oggname}"
+}
+
+function mpctomp3()
+{
+	test -z $(which mppdec) && perror mppdec && return
+	test -z $(which lame) && perror lame && return
+	mp3name="${encdir}/${EXTRA}/${shortname}.mp3"
+	getmetaape "$1"
+	test ${quality} -gt 9 && nice -10 mppdec "$1" - | nice -10 lame -b ${quality} ${ifmono} ${LAMEQUAL} - "${mp3name}"
+	test ${quality} -lt 10 && nice -10 mppdec "$1" - | nice -10 lame -v -V ${quality} ${ifmono} ${LAMEQUAL} - "${mp3name}"
+	writemetamp3
+}
+
+function mpctoaac()
+{
+	test -z $(which mppdec) && perror mppdec && return
+	test -z $(which faac) && perror faac && return
+	aacname="${encdir}/${EXTRA}/${shortname}.aac"
+	getmetaape "$1"
+	nice -10 mppdec "$1" - | nice -10 faac -q ${quality} -o "${aacname}" -
+}
+
+function mpctoipod()
+{
+	test -z $(which mppdec) && perror mppdec && return
+	test -z $(which faac) && perror faac && return
+	m4aname="${encdir}/${EXTRA}/${shortname}.m4a"
+	getmetaape "$1"
+	nice -10 mppdec "$1" - | nice -10 faac -w --artist "${ARTIST}" --title "${TITLE}" --album "${ALBUM}" --year "${YEAR}" --comment "${COMMENT}" --genre "${GENRE}" --track "${TRACKNUMBER}" -q ${quality} -o "${m4aname}" -
+}
+
+function mpctoflac()
+{
+	echo -e "# Musepack to FLAC only increases filesize. I won't do this.\n"
+	kdialog --passivepopup "Musepack to FLAC only increases filesize. I won't do this." 3
+}
+
+function mpctowv()
+{
+	echo -e "# Musepack to Wavpack only increases filesize. I won't do this.\n"
+	kdialog --passivepopup "Musepack to Wavpack only increases filesize. I won't do this." 3
+}
+
+### WAVPACK
+
+function wvtoogg()
+{
+	test -z $(which wvunpack) && perror wvunpack && return
+	test -z $(which oggenc) && perror oggenc && return
+	oggname="${encdir}/${EXTRA}/${shortname}.ogg"
+	getmetaape "$1"
+	nice -10 wvunpack "$1" -o - | nice -10 oggenc ${ifmono} -q ${quality} - -o "${oggname}"
+	writemetavorbis "${oggname}"
+}
+
+function wvtomp3()
+{
+	test -z $(which wvunpack) && perror wvunpack && return
+	test -z $(which lame) && perror lame && return
+	mp3name="${encdir}/${EXTRA}/${shortname}.mp3"
+	getmetaape "$1"
+	test ${quality} -gt 9 && nice -10 wvunpack "$1" -o - | nice -10 lame -b ${quality} ${ifmono} ${LAMEQUAL} - "${mp3name}"
+	test ${quality} -lt 10 && nice -10 wvunpack "$1" -o - | nice -10 lame -v -V ${quality} ${ifmono} ${LAMEQUAL} - "${mp3name}"
+	writemetamp3
+}
+
+function wvtoaac()
+{
+	test -z $(which wvunpack) && perror wvunpack && return
+	test -z $(which faac) && perror faac && return
+	aacname="${encdir}/${EXTRA}/${shortname}.aac"
+	nice -10 wvunpack "$1" -o - | nice -10 faac -q ${quality} -o "${aacname}" -
+}
+
+function wvtoipod()
+{
+	test -z $(which wvunpack) && perror wvunpack && return
+	test -z $(which faac) && perror faac && return
+	m4aname="${encdir}/${EXTRA}/${shortname}.m4a"
+	getmetaape "$1"
+	nice -10 wvunpack "$1" -o - | nice -10 faac -w --artist "${ARTIST}" --title "${TITLE}" --album "${ALBUM}" --year "${YEAR}" --comment "${COMMENT}" --genre "${GENRE}" --track "${TRACKNUMBER}" -q ${quality} -o "${m4aname}" -
+}
+
+function wvtoflac()
+{
+	test -z $(which wvunpack) && perror wvunpack && return
+	test -z $(which flac) && perror flac && return
+	flacname="${encdir}/${EXTRA}/${shortname}.flac"
+	getmetaape "$1"
+	nice -10 wvunpack "$1" -o "${tempfile}"
+	nice -10 flac ${FLACOPTS} --output-name="${flacname}" "${tempfile}"
+	writemetaflac "${flacname}"
+	rm -f "${tempfile}"
+}
+
+### Optimfrog
+
+function opttoogg()
+{
+	test -z $(which ofs) && perror ofs && return
+	test -z $(which oggenc) && perror oggenc && return
+	oggname="${encdir}/${EXTRA}/${shortname}.ogg"
+	getmetaape "$1"
+	nice -10 ofs --decode "$1" --output - | nice -10 oggenc ${ifmono} -q ${quality} - -o "${oggname}"
+	writemetavorbis "${oggname}"
+}
+
+function opttomp3()
+{
+	test -z $(which ofs) && perror ofs && return
+	test -z $(which lame) && perror lame && return
+	mp3name="${encdir}/${EXTRA}/${shortname}.mp3"
+	getmetaape "$1"
+	test ${quality} -gt 9 && nice -10 ofs --decode "$1" --output - | nice -10 lame -b ${quality} ${ifmono} ${LAMEQUAL} - "${mp3name}"
+	test ${quality} -lt 10 && nice -10 ofs --decode "$1" --output - | nice -10 lame -v -V ${quality} ${ifmono} ${LAMEQUAL} - "${mp3name}"
+	writemetamp3
+
+}
+
+function opttoaac()
+{
+	test -z $(which ofs) && perror ofs && return
+	test -z $(which faac) && perror faac && return
+	aacname="${encdir}/${EXTRA}/${shortname}.aac"
+	nice -10 ofs --decode "$1" --output - |	nice -10 faac -q ${quality} -o "${aacname}" -
+}
+
+function opttoipod()
+{
+	test -z $(which ofs) && perror ofs && return
+	test -z $(which faac) && perror faac && return
+	m4aname="${encdir}/${EXTRA}/${shortname}.m4a"
+	getmetaape "$1"
+	nice -10 ofs --decode "$1" --output - | nice -10 faac -w --artist "${ARTIST}" --title "${TITLE}" --album "${ALBUM}" --year "${YEAR}" --comment "${COMMENT}" --genre "${GENRE}" --track "${TRACKNUMBER}" -q ${quality} -o "${m4aname}" -
+}
+
+function opttoflac()
+{
+	test -z $(which ofs) && perror ofs && return
+	test -z $(which flac) && perror flac && return
+	flacname="${encdir}/${EXTRA}/${shortname}.flac"
+	getmetaape "$1"
+	nice -10 ofs --decode "$1" --output "${tempfile}"
+	nice -10 flac ${FLACOPTS} --output-name="${flacname}" "${tempfile}"
+	writemetaflac "${flacname}"
+	rm -f "${tempfile}"
+}
+
+function opttowv()
+{
+	test -z $(which ofs) && perror ofs && return
+	test -z $(which wavpack) && perror wavpack && return
+	wvname="${encdir}/${EXTRA}/${shortname}.wv"
+	getmetaape "$1"
+	nice -10 ofs --decode "$1" --output - | nice -10 wavpack -y -h  - "${wvname}"
+	writemetaape "${wvname}"
+}
+
+### Monkey
+
+function apetoogg()
+{
+	test -z $(which mac) && perror mac && return
+	test -z $(which oggenc) && perror oggenc && return
+	oggname="${encdir}/${EXTRA}/${shortname}.ogg"
+	getmetaape "$1"
+	nice -10 mac "$1" - -d | nice -10 oggenc ${ifmono} -q ${quality} - -o "${oggname}"
+	writemetavorbis "${oggname}"
+}
+
+function apetomp3()
+{
+	test -z $(which mac) && perror mac && return
+	test -z $(which lame) && perror lame && return
+	mp3name="${encdir}/${EXTRA}/${shortname}.mp3"
+	getmetaape "$1"
+	test ${quality} -gt 9 && nice -10 mac "$1" - -d | nice -10 lame -b ${quality} ${ifmono} ${LAMEQUAL} - "${mp3name}"
+	test ${quality} -lt 10 && nice -10 mac "$1" - -d | nice -10 lame -v -V ${quality} ${ifmono} ${LAMEQUAL} - "${mp3name}"
+	writemetamp3
+}
+
+function apetoaac()
+{
+	test -z $(which mac) && perror mac && return
+	test -z $(which faac) && perror faac && return
+	aacname="${encdir}/${EXTRA}/${shortname}.aac"
+	nice -10 mac "$1" - -d | nice -10 faac -q ${quality} -o "${aacname}" -
+}
+
+function apetoipod()
+{
+	test -z $(which mac) && perror mac && return
+	test -z $(which faac) && perror faac && return
+	m4aname="${encdir}/${EXTRA}/${shortname}.m4a"
+	getmetaape "$1"
+	nice -10 mac "$1" - -d | nice -10 faac -w --artist "${ARTIST}" --title "${TITLE}" --album "${ALBUM}" --year "${YEAR}" --comment "${COMMENT}" --genre "${GENRE}" --track "${TRACKNUMBER}" -q ${quality} -o "${m4aname}" -
+}
+
+function apetoflac()
+{
+	echo -e "# Monkey to FLAC only increases filesize. I won't do this.\n"
+	kdialog --passivepopup "Monkey to FLAC only increases filesize. I won't do this." 3
+#	flacname="${encdir}/${EXTRA}/${shortname}.flac"
+#	nice -10 mac "$1" "${tempfile}" -d
+#	nice -10 flac ${FLACOPTS} --output-name="${flacname}" "${tempfile}"
+#	rm -f "${tempfile}"
+}
+
+function apetowv()
+{
+	echo -e "# Monkey to Wavpack only increases filesize. I won't do this.\n"
+	kdialog --passivepopup "Monkey to Wavpack only increases filesize. I won't do this." 3
+}
+
+### Shorten
+
+function shntoogg()
+{
+	test -z $(which shorten) && perror shorten && return
+	test -z $(which oggenc) && perror oggenc && return
+	oggname="${encdir}/${EXTRA}/${shortname}.ogg"
+	nice -10 shorten -x "$1" - | nice -10 oggenc ${ifmono} -q ${quality} - -o "${oggname}"
+}
+
+function shntomp3()
+{
+	test -z $(which shorten) && perror shorten && return
+	test -z $(which lame) && perror lame && return
+	mp3name="${encdir}/${EXTRA}/${shortname}.mp3"
+	test ${quality} -gt 9 && nice -10 shorten -x "$1" - | nice -10 lame -b ${quality} ${ifmono} ${LAMEQUAL} - "${mp3name}"
+	test ${quality} -lt 10 && nice -10 shorten -x "$1" - | nice -10 lame -v -V ${quality} ${ifmono} ${LAMEQUAL} - "${mp3name}"
+}
+
+function shntoaac()
+{
+	test -z $(which shorten) && perror shorten && return
+	test -z $(which faac) && perror faac && return
+	aacname="${encdir}/${EXTRA}/${shortname}.aac"
+	nice -10 shorten -x "$1" - | nice -10 faac -q ${quality} -o "${aacname}" -
+}
+
+function shntoipod()
+{
+	test -z $(which shorten) && perror shorten && return
+	test -z $(which faac) && perror faac && return
+	m4aname="${encdir}/${EXTRA}/${shortname}.m4a"
+	nice -10 shorten -x "$1" - | nice -10 faac -w -q ${quality} -o "${m4aname}" -
+}
+
+function shntoflac()
+{
+	test -z $(which shorten) && perror shorten && return
+	test -z $(which flac) && perror flac && return
+	flacname="${encdir}/${EXTRA}/${shortname}.flac"
+	nice -10 shorten -x "$1" "${tempfile}"
+	nice -10 flac ${FLACOPTS} --output-name="${flacname}" "${tempfile}"
+	rm -f "${tempfile}"
+}
+
+function shntowv()
+{
+	test -z $(which shorten) && perror shorten && return
+	test -z $(which wavpack) && perror wavpack && return
+	wvname="${encdir}/${EXTRA}/${shortname}.wv"
+	nice -10 shorten -x "$1" - | nice -10 wavpack -y -h  - "${wvname}"
+}
+
+
+###################################### MAIN
+
+test -z "$1" && audioconvert4 $(kdialog --title "Which file do you want to convert?" --getopenfilename "${HOME}" "*.mp3 *.ogg *.wav *.aac *.flac *.m4a *.wv *.mpc *.mp+ *.wma *.ra *.rm *.ram *.ofs *.shn *.ape") && exit
+
+until [ -f "$1" ] || [ -d "$1" ] || [ -z "$1" ]
+do
+	case "$1" in
+		-dontask)
+			dontask=1;;
+		-t) shift;
+			enctype="$1";;
+		-h) echo -e "\nusage:\n
+audioconvert4 -q 64 -t m file  for 64kBit MP3
+audioconvert4 -q 1  -t m file  for high-quality VBR MP3
+audioconvert4 -q 4  -t o file  for mid-quality OGG
+audioconvert4 -q 80 -t a file  for mid-quality AAC
+audioconvert4 -q 80 -t i file  for mid-quality M4A for iPod
+audioconvert4       -t v file  for Wavpack
+audioconvert4       -t f file  for FLAC
+
+Possible input  formats are: WAV, MP3, OGG, AAC, M4A, FLAC, WV, APE, SHN, OFS, AMR.
+Possible output formats are: MP3, OGG, AAC, M4A, FLAC, WV.
+
+You can use wildcards and the -dontask option.
+";exit;;
+		-q) shift;
+			quality="$1";;
+		*) 	## Assume this is a file
+			## Prompt for any missing options
+			## or use default values
+		  test ! -e "$1" && echo -e "\nNo such file or directory: $1\n";;
+	esac
+	shift
+done
+
+test -z "$1" && exit
+
+# read saved values
+test -e "$(kde4-config --localprefix)/share/config/kwerc" && source "$(kde4-config --localprefix)/share/config/kwerc"
+test -z "${encdir}" && encdir=${HOME}
+test -z "${decdir}" && decdir=${HOME}
+
+# select destination directory, use last selected
+test ${dontask} -eq 0 &&
+encdir=$(kdialog --title "Where shall I write the new file(s)?" --getexistingdirectory "${encdir}") &&
+# encdir not writable?
+while test ! -w "${encdir}"
+do
+	kdialog --error "You are not allowed to write in this directory"
+	encdir=$(kdialog --title "Where shall I write the new file(s)?" --getexistingdirectory "${HOME}")
+done
+
+# if not writable in dontask mode
+test ${dontask} -eq 1 && test ! -w "${encdir}" && encdir="${HOME}"
+
+# save values in normal mode only
+test ${dontask} -eq 0 &&
+(
+echo "encdir=\"${encdir}\"" > $(kde4-config --localprefix)/share/config/kwerc
+echo "decdir=\"${decdir}\"" >> $(kde4-config --localprefix)/share/config/kwerc
+echo "MQUAL=${MQUAL}" >> $(kde4-config --localprefix)/share/config/kwerc
+echo "AQUAL=${AQUAL}" >> $(kde4-config --localprefix)/share/config/kwerc
+echo "OQUAL=${OQUAL}" >> $(kde4-config --localprefix)/share/config/kwerc
+)
+
+# enctype not given in normal mode?
+test ${dontask} -eq 0 &&
+if [ -z ${enctype} ]
+then enctype=$(kdialog --title audiokonverter --menu Format m MP3 o OGG a AAC i M4A f FLAC  2> /dev/null)
+fi
+
+# Default conversion for dontask mode:
+test ${dontask} -eq 1 && test -z ${enctype}  && enctype=${DONTASKFORMAT}
+
+# quality in dontask mode:
+test ${dontask} -eq 1 && test -z ${quality} &&
+case "${enctype}" in
+                m) quality=${MQUAL};;
+                o) quality=${OQUAL};;
+                a) quality=${AQUAL};;
+                i) quality=${AQUAL};;
+                *) enctype="m";quality=${MQUAL};;
+esac
+
+# quality not given in normal mode?
+test ${dontask} -eq 0 &&
+if [ -z ${quality} ]
+then
+	if [ ${enctype} = "m" ]
+	then
+		quality=$(kdialog --title audiokonverter --combobox "Bitrate or VBR quality" $MQUAL 32 40 48 56 64 80 96 112 128 160 192 224 256 320 9 8 7 6 5 4 3 2 1 0 2> /dev/null)
+		test -z "${quality}" && exit
+		echo "MQUAL=${quality}" >> $(kde4-config --localprefix)/share/config/kwerc
+		kdialog --title audiokonverter --yesno "Keep stereo (if any)?" 2> /dev/null
+		notmono=$?
+		if [ "${notmono}" = "1" ]   # 1 means no
+		then ifmono="-a"
+		fi
+	fi
+
+	if [ ${enctype} = "o" ]
+	then
+		quality=$(kdialog --title audiokonverter --combobox Quality ${OQUAL} 0 1 2 3 4 5 6 7 8 9 10 2> /dev/null)
+		test -z "${quality}" && exit
+		echo "OQUAL=${quality}" >> $(kde4-config --localprefix)/share/config/kwerc
+		kdialog --title audiokonverter --yesno "Keep stereo (if any)?" 2> /dev/null
+		notmono=$?
+		if [ "${notmono}" = "1" ]   # 1 means no
+		then ifmono="--downmix"
+		fi
+	fi
+
+	if [ ${enctype} = "a" ] || [ ${enctype} = "i" ]
+	then
+		quality=$(kdialog --title audiokonverter --combobox Quality $AQUAL 30 50 80 120 180 270 400  2> /dev/null)
+		test -z "${quality}" && exit
+		echo "AQUAL=${quality}" >> $(kde4-config --localprefix)/share/config/kwerc
+	fi
+fi
+
+until [ -z "$1" ]  # Until all parameters are used up...
+do
+	if [ -f "$1" ] # FIRST FILES
+	then
+		export EXTRA="" # do not create destination directory
+		names "$1"
+		# WAV
+		if [ -z "$(echo ${1: -3:3}|sed 's/^[Ww][Aa][Vv]$//g')" ]
+		then
+		case "${enctype}" in
+			o) wavtoogg "$1";;
+			m) wavtomp3 "$1";;
+			a) wavtoaac "$1";;
+			i) wavtoipod "$1";;
+			f) wavtoflac "$1";;
+			v) wavtowv "$1";;
+			*) ;;
+		esac
+		fi
+
+		# MP3
+		if [ -z "$(echo ${1: -3:3}|sed 's/^[Mm][Pp]3$//g')" ]
+		then
+		case "${enctype}" in
+			o) mp3toogg "$1";;
+			m) mp3tomp3 "$1";;
+			a) mp3toaac "$1";;
+			i) mp3toipod "$1";;
+			f) mp3toflac "$1";;
+			v) mp3towv "$1";;
+			*) ;;
+		esac
+		fi
+
+		# OGG
+		if [ -z "$(echo ${1: -3:3}|sed 's/^[Oo][Gg][Gg]$//g')" ]
+		then
+		case "${enctype}" in
+			o) oggtoogg "$1";;
+			m) oggtomp3 "$1";;
+			a) oggtoaac "$1";;
+			i) oggtoipod "$1";;
+			f) oggtoflac "$1";;
+			v) oggtowv "$1";;
+			*) ;;
+		esac
+		fi
+
+		# AAC
+		if [ -z "$(echo ${1: -3:3}|sed 's/^[Aa][Aa][Cc]$//g')" ]
+		then
+		case "${enctype}" in
+			o) aactoogg "$1";;
+			m) aactomp3 "$1";;
+			a) aactoaac "$1";;
+			i) aactoipod "$1";;
+			f) aactoflac "$1";;
+			v) aactowv "$1";;
+			*) ;;
+		esac
+		fi
+		if [ -z "$(echo ${1: -3:3}|sed 's/^[Mm]4[Aa]$//g')" ]
+		then
+		case "${enctype}" in
+			o) aactoogg "$1";;
+			m) aactomp3 "$1";;
+			a) aactoaac "$1";;
+			i) aactoipod "$1";;
+			f) aactoflac "$1";;
+			v) aactowv "$1";;
+			*) ;;
+		esac
+		fi
+
+		# FLAC
+		if [ -z "$(echo ${1: -4:4}|sed 's/^[Ff][Ll][Aa][Cc]$//g')" ]
+		then
+		case "${enctype}" in
+			o) flactoogg "$1";;
+			m) flactomp3 "$1";;
+			a) flactoaac "$1";;
+			i) flactoipod "$1";;
+			v) flactowv "$1";;
+			*) ;;
+		esac
+		fi
+
+		# Wavpack
+		if [ -z "$(echo ${1: -2:2}|sed 's/^[Ww][Vv]$//g')" ]
+		then
+		case "${enctype}" in
+			o) wvtoogg "$1";;
+			m) wvtomp3 "$1";;
+			a) wvtoaac "$1";;
+			i) wvtoipod "$1";;
+			f) wvtoflac "$1";;
+			*) ;;
+		esac
+		fi
+
+		# Musepack
+		if [ -z "$(echo ${1: -3:3}|sed 's/^[Mm][Pp][Cc+]$//g')" ]
+		then
+		case "${enctype}" in
+			o) mpctoogg "$1";;
+			m) mpctomp3 "$1";;
+			a) mpctoaac "$1";;
+			i) mpctoipod "$1";;
+			f) mpctoflac "$1";;
+			v) mpctowv "$1";;
+			*) ;;
+		esac
+		fi
+
+		# WMA
+		if [ -z "$(echo ${1: -3:3}|sed 's/^[Ww][Mm][Aa]$//g')" ]
+		then
+		case "${enctype}" in
+			o) real+wma2ogg "$1";;
+			m) real+wma2mp3 "$1";;
+			a) real+wma2aac "$1";;
+			i) real+wma2ipod "$1";;
+			f) real+wma2flac "$1";;
+			v) real+wma2wv "$1";;
+			*) ;;
+		esac
+		fi
+
+		# AMR
+		if [ -z "$(echo ${1: -3:3}|sed 's/^[Aa][Mm][Rr]$//g')" ]
+		then
+		case "${enctype}" in
+			o) real+wma2ogg "$1";;
+			m) real+wma2mp3 "$1";;
+			a) real+wma2aac "$1";;
+			i) real+wma2ipod "$1";;
+			f) real+wma2flac "$1";;
+			v) real+wma2wv "$1";;
+			*) ;;
+		esac
+		fi
+
+		# REAL
+		if [ -z "$(echo ${1: -2:2}|sed 's/^[Rr][AaMm]$//g')" ]
+		then
+		case "${enctype}" in
+			o) real+wma2ogg "$1";;
+			m) real+wma2mp3 "$1";;
+			a) real+wma2aac "$1";;
+			i) real+wma2ipod "$1";;
+			f) real+wma2flac "$1";;
+			v) real+wma2wv "$1";;
+			*) ;;
+		esac
+		fi
+		if [ -z "$(echo ${1: -3:3}|sed 's/^[Rr][Aa][Mm]$//g')" ]
+		then
+		case "${enctype}" in
+			o) real+wma2ogg "$1";;
+			m) real+wma2mp3 "$1";;
+			a) real+wma2aac "$1";;
+			a) real+wma2ipod "$1";;
+			f) real+wma2flac "$1";;
+			v) real+wma2wv "$1";;
+			*) ;;
+		esac
+		fi
+
+		# Optimfrog
+		if [ -z "$(echo ${1: -3:3}|sed 's/^[Oo][Ff][Ss]$//g')" ]
+		then
+		case "${enctype}" in
+			o) opttoogg "$1";;
+			m) opttomp3 "$1";;
+			a) opttoaac "$1";;
+			i) opttoipod "$1";;
+			f) opttoflac "$1";;
+			v) opttowv "$1";;
+			*) ;;
+		esac
+		fi
+
+		# Shorten
+		if [ -z "$(echo ${1: -3:3}|sed 's/^[Ss][Hh][Nn]$//g')" ]
+		then
+		case "${enctype}" in
+			o) shntoogg "$1";;
+			m) shntomp3 "$1";;
+			a) shntoaac "$1";;
+			i) shntoipod "$1";;
+			f) shntoflac "$1";;
+			v) shntowv "$1";;
+			*) ;;
+		esac
+		fi
+
+		# Monkey
+		if [ -z "$(echo ${1: -3:3}|sed 's/^[Aa][Pp][Ee]$//g')" ]
+		then
+		case "${enctype}" in
+			o) apetoogg "$1";;
+			m) apetomp3 "$1";;
+			a) apetoaac "$1";;
+			i) apetoipod "$1";;
+			f) apetoflac "$1";;
+			v) apetowv "$1";;
+			*) ;;
+		esac
+		fi
+	fi
+
+	if [ -d "$1" ] # THEN DIRECTORIES
+	then
+		cd "$1" # must be here for relative paths
+		CDIR="$PWD" # converting directory
+		echo "Converting recursively from $PWD"
+		export EXTRABASE=$(basename "$PWD") # dirname to create in encdir
+
+		# preserve directory structure:
+		find . -type d | while read DICH # find all dirs
+		do # dir recursion begin
+			EXTRA="${EXTRABASE}/${DICH}"
+			mkdir -p "${encdir}/${EXTRA}" # create subdir in encdir
+			# go to source dir and find files only in this dir (-maxdepth 1):
+			cd "${CDIR}/${DICH}"
+
+			# WAV
+			find . -type f -maxdepth 1 -iregex '.*\.[Ww][Aa][Vv]' | while read FICH
+			do
+			names "$FICH"
+			case "${enctype}" in
+				o) wavtoogg "$FICH";;
+				m) wavtomp3 "$FICH";;
+				a) wavtoaac "$FICH";;
+				i) wavtoipod "$FICH";;
+				f) wavtoflac "$FICH";;
+				v) wavtowv "$FICH";;
+				*) ;;
+			esac
+			done
+
+			# MP3
+			find . -type f -maxdepth 1 -iregex '.*\.[Mm][Pp]3' | while read FICH
+			do
+			names "$FICH"
+			case "${enctype}" in
+				o) mp3toogg "$FICH";;
+				m) mp3tomp3 "$FICH";;
+				a) mp3toaac "$FICH";;
+				i) mp3toipod "$FICH";;
+				f) mp3toflac "$FICH";;
+				v) mp3towv "$FICH";;
+				*) ;;
+			esac
+			done
+
+			# OGG
+			find . -type f -maxdepth 1 -iregex '.*\.[Oo][Gg][Gg]' | while read FICH
+			do
+			names "$FICH"
+			case "${enctype}" in
+				o) oggtoogg "$FICH";;
+				m) oggtomp3 "$FICH";;
+				a) oggtoaac "$FICH";;
+				i) oggtoipod "$FICH";;
+				f) oggtoflac "$FICH";;
+				v) oggtowv "$FICH";;
+				*) ;;
+			esac
+			done
+
+			# AAC
+			find . -type f -maxdepth 1 -iregex '.*\.[Aa][Aa][Cc]' | while read FICH
+			do
+			names "$FICH"
+			case "${enctype}" in
+				o) aactoogg "$FICH";;
+				m) aactomp3 "$FICH";;
+				a) aactoaac "$FICH";;
+				i) aactoipod "$FICH";;
+				f) aactoflac "$FICH";;
+				v) aactowv "$FICH";;
+				*) ;;
+			esac
+			done
+			find . -type f -maxdepth 1 -iregex '.*\.[Mm]4[Aa]' | while read FICH
+			do
+			names "$FICH"
+			case "${enctype}" in
+				o) aactoogg "$FICH";;
+				m) aactomp3 "$FICH";;
+				a) aactoaac "$FICH";;
+				i) aactoipod "$FICH";;
+				f) aactoflac "$FICH";;
+				v) aactowv "$FICH";;
+				*) ;;
+			esac
+			done
+
+			# FLAC
+			find . -type f -maxdepth 1 -iregex '.*\.[Ff][Ll][Aa][Cc]' | while read FICH
+			do
+			names "$FICH"
+			case "${enctype}" in
+				o) flactoogg "$FICH";;
+				m) flactomp3 "$FICH";;
+				a) flactoaac "$FICH";;
+				i) flactoipod "$FICH";;
+				v) flactowv "$FICH";;
+				*) ;;
+			esac
+			done
+
+			# Wavpack
+			find . -type f -maxdepth 1 -iregex '.*\.[Ww][Vv]' | while read FICH
+			do
+			names "$FICH"
+			case "${enctype}" in
+				o) wvtoogg "$FICH";;
+				m) wvtomp3 "$FICH";;
+				a) wvtoaac "$FICH";;
+				i) wvtoipod "$FICH";;
+				f) wvtoflac "$FICH";;
+				*) ;;
+			esac
+			done
+
+			# Musepack
+			find . -type f -maxdepth 1 -iregex '.*\.[Mm][Pp][Cc+]' | while read FICH
+			do
+			names "$FICH"
+			case "${enctype}" in
+				o) mpctoogg "$FICH";;
+				m) mpctomp3 "$FICH";;
+				a) mpctoaac "$FICH";;
+				i) mpctoipod "$FICH";;
+				f) mpctoflac "$FICH";;
+				v) mpctowv "$FICH";;
+				*) ;;
+			esac
+			done
+
+			# WMA
+			find . -type f -maxdepth 1 -iregex '.*\.[Ww][Mm][Aa]' | while read FICH
+			do
+			names "$FICH"
+			case "${enctype}" in
+				o) real+wma2ogg "$FICH";;
+				m) real+wma2mp3 "$FICH";;
+				a) real+wma2aac "$FICH";;
+				i) real+wma2ipod "$FICH";;
+				f) real+wma2flac "$FICH";;
+				v) real+wma2wv "$FICH";;
+				*) ;;
+			esac
+			done
+
+			# AMR
+			find . -type f -maxdepth 1 -iregex '.*\.[Aa][Mm][Rr]' | while read FICH
+			do
+			names "$FICH"
+			case "${enctype}" in
+				o) real+wma2ogg "$FICH";;
+				m) real+wma2mp3 "$FICH";;
+				a) real+wma2aac "$FICH";;
+				i) real+wma2ipod "$FICH";;
+				f) real+wma2flac "$FICH";;
+				v) real+wma2wv "$FICH";;
+				*) ;;
+			esac
+			done
+
+			# REAL
+			find . -type f -maxdepth 1 -iregex '.*\.[Rr][AaMm]' | while read FICH
+			do
+			names "$FICH"
+			case "${enctype}" in
+				o) real+wma2ogg "$FICH";;
+				m) real+wma2mp3 "$FICH";;
+				a) real+wma2aac "$FICH";;
+				i) real+wma2ipod "$FICH";;
+				f) real+wma2flac "$FICH";;
+				v) real+wma2wv "$FICH";;
+				*) ;;
+			esac
+			done
+			find . -type f -maxdepth 1 -iregex '.*\.[Rr][Aa][Mm]' | while read FICH
+			do
+			names "$FICH"
+			case "${enctype}" in
+				o) real+wma2ogg "$FICH";;
+				m) real+wma2mp3 "$FICH";;
+				a) real+wma2aac "$FICH";;
+				i) real+wma2ipod "$FICH";;
+				f) real+wma2flac "$FICH";;
+				v) real+wma2wv "$FICH";;
+				*) ;;
+			esac
+			done
+
+		done # dir recursion end
+	fi
+
+shift
+done
+
+test ${dontask} -eq 0 && kdialog --msgbox "Encoding finished!"
+test ${dontask} -eq 1 && kdialog --passivepopup "Encoding finished!" 3 &
+

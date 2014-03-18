@@ -1,0 +1,5 @@
+[MiniDLNA]
+title=MiniDLNA
+description=DLNA Media Server
+ports=1900,8200
+

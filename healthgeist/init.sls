@@ -9,7 +9,7 @@ healthgeist:
             - postgres_user: pg_user-django
     file.managed:
         - name: /usr/local/bin/setup_healthgeist_db_gis.sh
-        - source: salt://scripts/setup_healthgeist_db_gis.sh
+        - source: salt://heathgeist/setup_healthgeist_db_gis.sh
         - mode: 755
     cmd.wait:
         - name: /usr/local/bin/setup_healthgeist_db_gis.sh

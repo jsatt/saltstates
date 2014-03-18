@@ -1,0 +1,308 @@
+#!/bin/bash
+# (c) Jochen Puchalla 2004-2009
+
+dontask=0
+
+test -z $(which kde4-config) && PATH=${PATH}:${HOME}/.kde/bin || PATH=${PATH}:$(kde4-config --localprefix)/bin
+
+function perror()
+{
+	echo "Program $1 not found. Skipping file"
+	kdialog --passivepopup "Program $1 not found. Skipping file." 3
+}
+
+function files()
+{
+	filedir=$(dirname "$1") # directory without filename
+	filename=$(basename "$1") # name without directory
+	shortname=$(echo ${filename}|sed 's/\.[^\.]*$//g') # delete suffix, version by Dimitrios Lampridis
+#	shortname=$(echo ${filename}|sed 's/\..*$//g') # delete suffix
+	wavname="${decdir}/${EXTRA}/${shortname}.wav"
+	echo -e "\n# Now converting: $1\n"
+}
+
+function oggwav()
+{
+	test -z $(which oggdec) && perror oggdec && return
+	files "$1"
+	nice -10 oggdec --output="${wavname}" "$1"
+}
+
+function flacwav()
+{
+	test -z $(which flac) && perror flac && return
+	files "$1"
+	nice -10 flac -d --output-name="${wavname}" "$1"
+}
+
+function aacwav()
+{
+	test -z $(which faad) && perror faad && return
+	files "$1"
+	nice -10 faad -o "${wavname}" "$1"
+}
+
+function mp3wav()
+{
+	test -z $(which lame) && perror lame && return
+	files "$1"
+	nice -10 lame --decode "$1" "${wavname}"
+}
+
+function real+wmawav()
+{
+	test -z $(which mplayer) && perror mplayer && return
+	files "$1"
+	nice -10 mplayer -really-quiet -nolirc -nojoystick -nortc -vo null -ao pcm:file="${wavname}" "$1"
+}
+
+function mpcwav()
+{
+	test -z $(which mppdec) && perror mppdec && return
+	files "$1"
+	nice -10 mppdec "$1" "${wavname}"
+}
+
+function wvwav()
+{
+	test -z $(which wvunpack) && perror wvunpack && return
+	files "$1"
+	nice -10 wvunpack -y "$1" -o "${wavname}"
+}
+
+function apewav()
+{
+	test -z $(which mac) && perror mac && return
+	files "$1"
+	nice -10 mac "$1" "${wavname}" -d
+}
+
+function shnwav()
+{
+	test -z $(which shorten) && perror shorten && return
+	files "$1"
+	nice -10 shorten -x "$1" "${wavname}"
+}
+
+function ofswav()
+{
+	test -z $(which ofs) && perror ofs && return
+	files "$1"
+	nice -10 ofs --overwrite --decode "$1" "${wavname}"
+}
+
+test -z "$1" && echo -e "\nusage: anytowav filename(s)\n" && exit
+
+until [ -f "$1" ] || [ -d "$1" ]
+do
+	case "$1" in
+		-dontask)
+			dontask=1;;
+		*) ;;
+	esac
+	shift
+done
+
+# default value:
+#decdir=$HOME
+
+# read saved values
+test -e "$(kde4-config --localprefix)/share/config/kwerc" && source "$(kde4-config --localprefix)/share/config/kwerc"
+test -z "${decdir}" && decdir=${HOME}
+
+# select destination directory, use last selected
+test ${dontask} -eq 0 &&
+decdir=$(kdialog --title "Where shall I write the new file(s)?" --getexistingdirectory ${decdir}) &&
+while test ! -w "${decdir}"
+do
+	kdialog --error "You are not allowed to write in this directory"
+	decdir=$(kdialog --title "Where shall I write the new file(s)?" --getexistingdirectory $HOME)
+done
+
+# if not writable in dontask mode
+test ${dontask} -eq 1 && test ! -w "$encdir" && encdir=$HOME
+
+# save values in normal mode only
+test ${dontask} -eq 0 && echo "decdir=\"${decdir}\"" >> $(kde4-config --localprefix)/share/config/kwerc
+
+until [ -z "$1" ]  # Until all parameters are used up...
+do
+	if [ -f "$1" ]
+	then
+		export EXTRA=""
+		#AAC:
+		if [ "${1: -4}" = ".aac" ]
+		then aacwav "$1"
+		fi
+		if [ "${1: -4}" = ".AAC" ]
+		then aacwav "$1"
+		fi
+		if [ "${1: -4}" = ".amr" ]
+		then real+wmawav "$1"
+		fi
+		if [ "${1: -4}" = ".AMR" ]
+		then real+wmawav "$1"
+		fi
+		if [ "${1: -4}" = ".m4a" ]
+		then aacwav "$1"
+		fi
+		if [ "${1: -4}" = ".M4A" ]
+		then aacwav "$1"
+		fi
+		#FLAC:
+		if [ "${1: -5}" = ".flac" ]
+		then flacwav "$1"
+		fi
+		if [ "${1: -5}" = ".FLAC" ]
+		then flacwav "$1"
+		fi
+		#OGG:
+		if [ "${1: -4}" = ".ogg" ]
+		then oggwav "$1"
+		fi
+		if [ "${1: -4}" = ".OGG" ]
+		then oggwav "$1"
+		fi
+		#MP3:
+		if [ "${1: -4}" = ".mp3" ]
+		then mp3wav "$1"
+		fi
+		if [ "${1: -4}" = ".MP3" ]
+		then mp3wav "$1"
+		fi
+		#Musepack
+		if [ "${1: -4}" = ".mpc" ]
+		then mpcwav "$1"
+		fi
+		if [ "${1: -4}" = ".MPC" ]
+		then mpcwav "$1"
+		fi
+		if [ "${1: -4}" = ".mp+" ]
+		then mpcwav "$1"
+		fi
+		if [ "${1: -4}" = ".MP+" ]
+		then mpcwav "$1"
+		fi
+		#Wavepack:
+		if [ "${1: -3}" = ".wv" ]
+		then wvwav "$1"
+		fi
+		if [ "${1: -3}" = ".WV" ]
+		then wvwav "$1"
+		fi
+		#WMA:
+		if [ "${1: -4}" = ".wma" ]
+		then real+wmawav "$1"
+		fi
+		if [ "${1: -4}" = ".WMA" ]
+		then real+wmawav "$1"
+		fi
+		#RealAudio:
+		if [ "${1: -3}" = ".ra" ]
+		then real+wmawav "$1"
+		fi
+		if [ "${1: -3}" = ".RA" ]
+		then real+wmawav "$1"
+		fi
+		if [ "${1: -3}" = ".rm" ]
+		then real+wmawav "$1"
+		fi
+		if [ "${1: -3}" = ".RM" ]
+		then real+wmawav "$1"
+		fi
+		if [ "${1: -4}" = ".ram" ]
+		then real+wmawav "$1"
+		fi
+		if [ "${1: -4}" = ".RAM" ]
+		then real+wmawav "$1"
+		fi
+		#Monkey!
+		if [ "${1: -4}" = ".ape" ]
+		then apewav "$1"
+		fi
+		if [ "${1: -4}" = ".APE" ]
+		then apewav "$1"
+		fi
+		#Shorten!
+		if [ "${1: -4}" = ".shn" ]
+		then shnwav "$1"
+		fi
+		if [ "${1: -4}" = ".SHN" ]
+		then shnwav "$1"
+		fi
+		#Optimfrog!
+		if [ "${1: -4}" = ".ofs" ]
+		then ofswav "$1"
+		fi
+		if [ "${1: -4}" = ".OFS" ]
+		then ofswav "$1"
+		fi
+	fi
+
+	if [ -d "$1" ] # THEN DIRECTORIES
+	then
+		cd "$1" # must be here for relative paths
+		CDIR="$PWD" # converting directory
+		echo "Converting recursively from $PWD"
+		export EXTRABASE=$(basename "$PWD") # dirname to create in encdir
+
+		# preserve directory structure:
+		find . -type d | while read DICH # find all dirs
+		do # dir recursion begin
+			EXTRA="${EXTRABASE}/${DICH}"
+			mkdir -p "${encdir}/${EXTRA}" # create subdir in encdir
+			# go to source dir and find files only in this dir (-maxdepth 1):
+			cd "${CDIR}/${DICH}"
+
+			find . -maxdepth 1 -type f -iregex '.*\.[Aa][Aa][Cc]' | while read FICH
+			do
+				aacwav "$FICH"
+			done
+			find . -maxdepth 1 -type f -iregex '.*\.[Aa][Mm][Rr]' | while read FICH
+			do
+				real+wmawav "$FICH"
+			done
+			find . -maxdepth 1 -type f -iregex '.*\.[Ff][Ll][Aa][Cc]' | while read FICH
+			do
+				flacwav "$FICH"
+			done
+			find . -maxdepth 1 -type f -iregex '.*\.[Mm][Pp]3' | while read FICH
+			do
+				mp3wav "$FICH"
+			done
+			find . -maxdepth 1 -type f -iregex '.*\.[Oo][Gg][Gg]' | while read FICH
+			do
+				oggwav "$FICH"
+			done
+			find . -maxdepth 1 -type f -iregex '.*\.[Mm]4[Aa]' | while read FICH
+			do
+				aacwav "$FICH"
+			done
+			find . -maxdepth 1 -type f -iregex '.*\.[Mm][Pp][Cc+]' | while read FICH
+			do
+				mpcwav "$FICH"
+			done
+			find . -maxdepth 1 -type f -iregex '.*\.[Rr][Aa][Mm]' | while read FICH
+			do
+				real+wmawav "$FICH"
+			done
+			find . -maxdepth 1 -type f -iregex '.*\.[Rr][AaMm]' | while read FICH
+			do
+				real+wmawav "$FICH"
+			done
+			find . -maxdepth 1 -type f -iregex '.*\.[Ww][Mm][Aa]' | while read FICH
+			do
+				real+wmawav "$FICH"
+			done
+			find . -maxdepth 1 -type f -iregex '.*\.[Ww][Vv]' | while read FICH
+			do
+				wvwav "$FICH"
+			done
+		done
+	fi
+
+	shift
+done
+
+test ${dontask} -eq 0 && kdialog --msgbox "All WAVs have been written!"
+test ${dontask} -eq 1 && kdialog --passivepopup "All WAVs have been written!" 3 &

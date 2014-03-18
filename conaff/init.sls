@@ -13,7 +13,7 @@
 
 /etc/nginx/sites-available/conaff:
     file.managed:
-        - source: salt://configs/nginx/site-conaff
+        - source: salt://conaff/site-conaff
         - require:
             - pkg: nginx
 
@@ -29,7 +29,7 @@ include:
 
 /etc/openvpn/mgmt.conf:
     file.managed:
-        - source: salt://configs/conaff/mgmt.ovpn
+        - source: salt://conaff/mgmt.ovpn
         - require:
             - pkg: openvpn
         - watch_in:
@@ -37,7 +37,7 @@ include:
 
 /etc/openvpn/iso.conf:
     file.managed:
-        - source: salt://configs/conaff/iso.ovpn
+        - source: salt://conaff/iso.ovpn
         - require:
             - pkg: openvpn
         - watch_in:

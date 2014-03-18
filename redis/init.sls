@@ -7,7 +7,7 @@
 
 /etc/redis/redis.conf:
     file.managed:
-        - source: salt://configs/redis/redis.conf
+        - source: salt://redis/redis.conf
         - user: redis
         - group: redis
         - mode: 660
