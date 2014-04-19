@@ -7,7 +7,7 @@ wget -O - http://bootstrap.saltstack.org | sudo sh -s -- -P git $SALT_VERSION
 pushd `dirname $0` > /dev/null
 SCRIPT_PATH=`pwd -P`
 popd > /dev/null
-cp $SCRIPT_PATH/configs/salt/minion /etc/salt/minion
+cp $SCRIPT_PATH/salt/minion /etc/salt/minion
 
 service salt-minion restart
 

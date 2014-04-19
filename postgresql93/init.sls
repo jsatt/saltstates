@@ -33,7 +33,7 @@ postgresql:
             - file: /etc/postgresql/9.3/main/postgresql.conf
     file.managed:
         - name: /etc/postgresql/9.3/main/postgresql.conf
-        - source: salt://postgresql9.3/postgresql.conf
+        - source: salt://postgresql93/postgresql.conf
         - require:
             - pkg: postgresql
         - mode: 755

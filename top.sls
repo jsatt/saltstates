@@ -18,20 +18,12 @@ base:
     'mrlittlejeans':
         - base
         - users
-        - desktop
         - python
         - nginx
-        - redis
-        - mysql
-        - openvpn
-        - postgresql
-        - vcs
-        #- ufw
-        - conaff
-        - media.spotify
-        - media.audiokonverter
-        - browsers
-        - virtualbox
+        #- redis
+        #- postgresql93
+        - vcs.git
+        - minidlna
     'mapplethorpe':
         - base
         - users
@@ -39,7 +31,7 @@ base:
         - python
         - nginx
         - redis
-        - postgresql
+        - postgresql93
         - vcs
         #- ufw
         - healthgeist
