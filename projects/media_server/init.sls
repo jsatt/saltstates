@@ -20,6 +20,7 @@ media_server_requirements:
             - gunicorn
             - django-podcast-client
             - pysqlite
+            - redis
         - require:
             - pkg: media_server_requirements
 
@@ -29,6 +30,13 @@ media_server_directory:
         - user: {{app_user}}
         - group: {{app_user}}
         - mode: 0755
+
+media_server_file_directory:
+    file.directory:
+        - name: {{pillar.media_server.file_root}}
+        - user: {{app_user}}
+        - group: {{app_user}}
+        - mode: 0777
 
 django_media_server:
     git.latest:
@@ -72,6 +80,12 @@ django_urls_media_server:
         - source: salt://projects/media_server/local_urls.py
         - require:
             - git: django_media_server
+
+podcast_updater:
+    cron.present:
+        - name: python {{ app_dir }}/manage.py podcast --update
+        - user: {{ app_user }}
+        - minute: '*/30'
 
 restart_media_server:
     cmd.wait:

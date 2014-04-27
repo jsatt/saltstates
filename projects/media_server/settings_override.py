@@ -8,6 +8,8 @@ DATABASES = {
     }
 }
 
+MEDIA_ROOT = '{{pillar.media_server.file_root}}'
+
 
 LOCAL_INSTALLED_APPS = (
     'podcast_client',

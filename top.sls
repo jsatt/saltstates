@@ -20,7 +20,7 @@ base:
         - users
         - python
         - nginx
-        #- redis
+        - redis
         #- postgresql93
         - vcs.git
         #- minidlna
