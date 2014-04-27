@@ -23,7 +23,9 @@ base:
         #- redis
         #- postgresql93
         - vcs.git
-        - minidlna
+        #- minidlna
+        - rygel
+        - projects.media_server
     'mapplethorpe':
         - base
         - users
