@@ -23,3 +23,8 @@ rygel_supervisor:
         - watch_in:
             - service: supervisor
             - cmd: restart_supervisor
+
+    cmd.wait:
+        - name: supervisorctl stop rygel && supervisorctl start rygel
+        - watch:
+            - file: rygel
