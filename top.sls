@@ -25,6 +25,7 @@ base:
         - vcs.git
         #- minidlna
         - rygel
+        - transmission
         - projects.media_server
     'mapplethorpe':
         - base
