@@ -9,8 +9,7 @@ nginx:
     service:
         - running
         - watch:
-            - file: /etc/nginx/sites-available/*
-            - file: /etc/nginx/sites-enabled/*
+            - file: /etc/nginx/sites-available/default
 
 /etc/nginx/sites-available/default:
     file.managed:
