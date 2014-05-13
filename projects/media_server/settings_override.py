@@ -4,7 +4,7 @@ ALLOWED_HOSTS = {{pillar.django.app.allowed_hosts}}
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': 'database.db',
+        'NAME': '{{app_dir}}/database.db',
     }
 }
 

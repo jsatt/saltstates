@@ -71,6 +71,8 @@ django_settings_media_server:
         - name: {{app_dir}}/settings_override.py
         - source: salt://projects/media_server/settings_override.py
         - template: jinja
+        - defaults:
+            app_dir: {{ app_dir }}
         - require:
             - git: django_media_server
 
@@ -83,7 +85,7 @@ django_urls_media_server:
 
 podcast_updater:
     cron.present:
-        - name: python {{ app_dir }}/manage.py podcast --update
+        - name: {{ app_dir }}/manage.py podcast --update
         - user: {{ app_user }}
         - minute: '*/30'
 
