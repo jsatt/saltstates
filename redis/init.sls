@@ -11,5 +11,12 @@ redis-server:
     file.managed:
         - source: salt://redis/redis.conf
         - mode: 660
+        - user: redis
+        - group: redis
+/etc/redis:
+    file.directory:
+        - user: redis
+        - group: redis
+        - mode: 770
 
 # vim:set ft=yaml:
