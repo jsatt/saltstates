@@ -14,3 +14,6 @@ MEDIA_ROOT = '{{pillar.media_server.file_root}}'
 LOCAL_INSTALLED_APPS = (
     'podcast_client',
 )
+
+BROKER_URL = 'redis://localhost/0'
+CELERY_RESUL_BACKEND = 'redis://localhost/1'
