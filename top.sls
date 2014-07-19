@@ -23,8 +23,8 @@ base:
         - redis
         #- postgresql93
         - vcs.git
-        #- minidlna
-        - rygel
+        - minidlna
+        #- rygel
         - transmission
         - projects.media_server
     'mapplethorpe':

@@ -1,6 +1,7 @@
 /etc/minidlna.conf:
     file.managed:
         - source: salt://minidlna/minidlna.conf
+        - template: jinja
 
 minidlna:
     pkg:
@@ -9,8 +10,11 @@ minidlna:
             - file: /etc/minidlna.conf
     service:
         - running
+        - require:
+            - pkg: minidlna
         - watch:
             - file: /etc/minidlna.conf
+
 
 /home/media:
     file.directory:
