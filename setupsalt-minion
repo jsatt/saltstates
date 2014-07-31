@@ -1,6 +1,6 @@
 #!/bin/bash
 
-SALT_VERSION=v0.17.5
+SALT_VERSION=v2014.1.7
 
 wget -O - http://bootstrap.saltstack.org | sudo sh -s -- -P git $SALT_VERSION
 
