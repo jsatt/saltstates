@@ -1,5 +1,5 @@
 include: 
-    - postgresql
+    - postgresql93
     - python.pil_deps
 
 healthgeist:
@@ -10,7 +10,7 @@ healthgeist:
             - postgres_user: pg_user-django
     file.managed:
         - name: /usr/local/bin/setup_healthgeist_db_gis.sh
-        - source: salt://heathgeist/setup_healthgeist_db_gis.sh
+        - source: salt://projects/healthgeist/setup_healthgeist_db_gis.sh
         - mode: 755
     cmd.wait:
         - name: /usr/local/bin/setup_healthgeist_db_gis.sh

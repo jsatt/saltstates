@@ -4,7 +4,6 @@ apps:
             - congruity
             - exuberant-ctags
             - gimp
-            - ia32-libs  # for emusisdlm, maybe others
             - kdiff3
             - konversation
             - pidgin
@@ -42,7 +41,6 @@ remove_bloat:
             - muon-updater
             - quassel
             - rdesktop
-            - xterm
 
 media_apps:
     pkg.installed:

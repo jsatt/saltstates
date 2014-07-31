@@ -7,13 +7,13 @@ mercurial:
         - require:
             - pkgrepo: mercurial
 
-tortoisehg:
-    pkgrepo.managed:
-        - ppa: tortoisehg-ppa/releases
-        - require_in:
-            - pkg: tortoisehg
-    pkg.installed:
-        - require:
-            - pkgrepo: tortoisehg
+#tortoisehg:
+#    pkgrepo.managed:
+#        - ppa: tortoisehg-ppa/releases
+#        - require_in:
+#            - pkg: tortoisehg
+#    pkg.installed:
+#        - require:
+#            - pkgrepo: tortoisehg
 
 # vim:set ft=yaml:

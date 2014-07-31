@@ -36,11 +36,12 @@ base:
         - postgresql93
         - vcs
         #- ufw
-        - healthgeist
         - media.spotify
         - media.audiokonverter
+        - media.emusic-deps
         - browsers
         - virtualbox
+        - projects.healthgeist
     'jsattcom':
         - base
         - users

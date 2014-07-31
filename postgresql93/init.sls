@@ -5,6 +5,14 @@
         - mode: 700
         - makedirs: True
 
+
+/var/run/postgresql/:
+    file.directory:
+        - user: postgres
+        - group: postgres
+        - mode: 2775
+        - makedirs: True
+
 postgresql:
     pkgrepo.managed:
         # contains Postgresql 9.3 and PostGIS 2.1
@@ -20,7 +28,8 @@ postgresql:
             - pgadmin3
             - postgresql-client
         - require:
-            - file: /home/sys/postgresql
+            - file: /home/sys/postgresql/
+            - file: /var/run/postgresql/
             - pkgrepo: postgresql
     service:
         - name: postgresql
