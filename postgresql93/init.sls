@@ -1,22 +1,8 @@
-/home/sys/postgresql/:
-    file.directory:
-        - user: postgres
-        - group: postgres
-        - mode: 700
-        - makedirs: True
-
-
-/var/run/postgresql/:
-    file.directory:
-        - user: postgres
-        - group: postgres
-        - mode: 2775
-        - makedirs: True
 
 postgresql:
     pkgrepo.managed:
         # contains Postgresql 9.3 and PostGIS 2.1
-        - name: deb http://apt.postgresql.org/pub/repos/apt/ precise-pgdg main
+        - name: deb http://apt.postgresql.org/pub/repos/apt/ trusty-pgdg main
         - file: /etc/apt/sources.list.d/postgresql.list
         - key_url: http://apt.postgresql.org/pub/repos/apt/ACCC4CF8.asc
         - require_in:
@@ -28,9 +14,44 @@ postgresql:
             - pgadmin3
             - postgresql-client
         - require:
-            - file: /home/sys/postgresql/
-            - file: /var/run/postgresql/
             - pkgrepo: postgresql
+
+/home/sys/postgresql/:
+    file.directory:
+        - user: postgres
+        - group: postgres
+        - dir_mode: 2700
+        - file_mode: 600
+        - makedirs: True
+        - recurse:
+            - user
+            - group
+            - mode
+        - require:
+            - pkg: postgresql
+
+/var/run/postgresql/:
+    file.directory:
+        - user: postgres
+        - group: postgres
+        - mode: 2775
+        - makedirs: True
+        - require:
+            - pkg: postgresql
+
+move_postgres_data:
+    file.managed:
+        - name: /etc/postgresql/9.3/main/postgresql.conf
+        - source: salt://postgresql93/postgresql.conf
+        - require:
+            - pkg: postgresql
+        - mode: 755
+    cmd.wait:
+        - name: service postgresql stop && service postgresql start
+        - watch:
+            - file: move_postgres_data
+
+postgresql_running:
     service:
         - name: postgresql
         - running
@@ -40,12 +61,6 @@ postgresql:
             - file: /etc/postgresql/9.3/main/postgresql.conf
         - watch:
             - file: /etc/postgresql/9.3/main/postgresql.conf
-    file.managed:
-        - name: /etc/postgresql/9.3/main/postgresql.conf
-        - source: salt://postgresql93/postgresql.conf
-        - require:
-            - pkg: postgresql
-        - mode: 755
 
 {% for username, user in pillar.postgres.users.items() %}
 pg_user-{{username}}:
