@@ -40,6 +40,7 @@ base:
         - media.audiokonverter
         - media.emusic-deps
         - browsers
+        - vagrant
         - virtualbox
         - projects.healthgeist
     'jsattcom':
