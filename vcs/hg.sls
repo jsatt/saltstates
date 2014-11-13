@@ -1,11 +1,14 @@
 mercurial:
-    pkgrepo.managed:
-        - ppa: mercurial-ppa/releases
-        - require_in:
-            - pkg: mercurial
-    pkg.installed:
-        - require:
-            - pkgrepo: mercurial
+    #pkgrepo.managed:
+    #    - ppa: mercurial-ppa/releases
+    #    - require_in:
+    #        - pkg: mercurial
+    #pkg.installed:
+    #    - require:
+    #        - pkgrepo: mercurial
+    #
+    pkg:
+        - installed
 
 #tortoisehg:
 #    pkgrepo.managed:
