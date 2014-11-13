@@ -24,3 +24,8 @@ PIL_dependencies:
         - require:
             - pkg: PIL_dependencies
 
+/usr/local/include/freetype:
+    file.symlink:
+        - target: /usr/include/freetype2
+        - require:
+            - pkg: PIL_dependencies
