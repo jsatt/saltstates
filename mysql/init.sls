@@ -13,8 +13,11 @@ mysql:
         - name: mysql-server
         - require:
             - file: /etc/mysql/my.cnf
+            - file: /home/mysql
     service:
         - running
+        - require:
+            - pkg: mysql
         - watch:
             - file: /etc/mysql/my.cnf
 

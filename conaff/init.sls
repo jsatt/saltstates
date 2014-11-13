@@ -1,4 +1,5 @@
 include:
+    - nginx
     - openvpn
     - python.pil_deps
 

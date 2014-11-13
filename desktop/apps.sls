@@ -4,6 +4,7 @@ apps:
             - congruity
             - exuberant-ctags
             - gimp
+            - gtimer
             - kdiff3
             - konversation
             - pidgin

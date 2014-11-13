@@ -6,9 +6,6 @@ wheel:
         - text: |
             %wheel ALL=(ALL) NOPASSWD:ALL
 
-include:
-    - users.jsatt
-
 {% for username, user in salt['pillar.get']('users', {}).items() %}
 user-{{ username }}:
     user.present:
@@ -19,7 +16,7 @@ user-{{ username }}:
             {%- for group in user.groups %}
             - {{ group }}
             {%- endfor %}
-	{%- endif %}
+        {%- endif %}
         - fullname: {{ user.get('fullname', username) }}
         - shell: {{ user.get('shell', '/bin/bash') }}
 
@@ -35,4 +32,7 @@ sshkeys-{{ username }}:
 {%- endif %}
 
 {% endfor %}
+
+include:
+    - users.jsatt
 # vim:set ft=yaml:

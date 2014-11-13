@@ -4,7 +4,7 @@ audiokonverter_dependencies:
             - lame
             - faac
             - faad
-            - mplayer
+            - mplayer2
             - vorbis-tools
             - flac
             - libid3-tools
