@@ -16,6 +16,7 @@ base:
         - browsers
         - virtualbox
         - desktop.hipchat
+        - system.S27A850T
     'mrlittlejeans':
         - base
         - users
