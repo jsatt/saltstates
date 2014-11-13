@@ -15,6 +15,7 @@ base:
         - media.audiokonverter
         - browsers
         - virtualbox
+        - desktop.hipchat
     'mrlittlejeans':
         - base
         - users
