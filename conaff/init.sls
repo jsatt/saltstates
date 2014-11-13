@@ -27,23 +27,6 @@ include:
         - require:
             - file: /etc/nginx/sites-available/conaff
 
-#openvpn
-/etc/openvpn/mgmt.conf:
-    file.managed:
-        - source: salt://conaff/mgmt.ovpn
-        - require:
-            - pkg: openvpn
-        - watch_in:
-            - service: openvpn
-
-/etc/openvpn/iso.conf:
-    file.managed:
-        - source: salt://conaff/iso.ovpn
-        - require:
-            - pkg: openvpn
-        - watch_in:
-            - service: openvpn
-
 # hosts
 conaff:
     host.present:
