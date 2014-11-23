@@ -32,6 +32,9 @@ server {
     server_name static.jsatt.com;
     root {{pillar.django.static_path}};
     expires 1M;
+    location /media/ {
+        alias {{pillar.django.media_path}};
+    }
     location ~ ^.*\.(woff|svg|eot|ttf)$ {
         add_header 'Access-Control-Allow-Origin' '*';
     }
