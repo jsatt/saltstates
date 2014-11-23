@@ -6,3 +6,4 @@ base:
         - supervisor
         - python
         - mezzanine
+        - backups
