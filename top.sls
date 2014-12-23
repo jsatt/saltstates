@@ -45,6 +45,20 @@ base:
         - vagrant
         - virtualbox
         - projects.healthgeist
+    'pagoda-VirtualBox':
+        - base
+        - users
+        - desktop
+        - python
+        - nginx
+        - mysql
+        - postgresql93
+        - vcs
+        - media.spotify
+        - media.audiokonverter
+        - browsers
+        - virtualbox
+        - desktop.hipchat
     'jsattcom':
         - base
         - users
