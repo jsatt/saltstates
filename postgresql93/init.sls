@@ -2,7 +2,7 @@
 postgresql:
     pkgrepo.managed:
         # contains Postgresql 9.3 and PostGIS 2.1
-        - name: deb http://apt.postgresql.org/pub/repos/apt/ trusty-pgdg main
+        - name: deb http://apt.postgresql.org/pub/repos/apt/ {{salt['grains.get']('oscodename', 'utopic')}}-pgdg main
         - file: /etc/apt/sources.list.d/postgresql.list
         - key_url: http://apt.postgresql.org/pub/repos/apt/ACCC4CF8.asc
         - require_in:
