@@ -52,13 +52,14 @@ base:
         - python
         - nginx
         - mysql
-        - postgresql93
+        - postgresql94
         - vcs
         - media.spotify
         - media.audiokonverter
         - browsers
         - virtualbox
         - desktop.hipchat
+        - summit
     'jsattcom':
         - base
         - users

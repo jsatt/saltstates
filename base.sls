@@ -11,5 +11,6 @@ utils:
             - screen
             - ssh
             - vim
+            - vim-gui-common
 
 # vim:set ft=yaml:
