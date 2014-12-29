@@ -40,8 +40,16 @@ mysql-utils:
         - require:
             - pkg: mysql
 
+{% set mysql_pillar = pillar.get('mysql', {}) %}
 
-{% for username, user in pillar.mysql.users.items() %}
+{% for database in mysql_pillar.get('databases', []) %}
+mysql_db-{{database}}:
+    mysql_database.present:
+        - name: {{database}}
+{% endfor %}
+
+
+{% for username, user in mysql_pillar.get('users', {}).items() %}
 {% for host in user.hosts %}
 mysql_user-{{username}}-{{host}}:
     mysql_user.present:
@@ -54,8 +62,8 @@ mysql_user-{{username}}-{{host}}:
 {% for database in user.get('databases', []) %}
 mysql_user-{{username}}-{{host}}-{{database}}:
     mysql_grants.present:
-        - grant: {{user.grant}}
-        - database: "'{{database}}'"
+        - grant: {{user.get('grant', 'all privileges')}}
+        - database: "{{database}}"
         - user: {{username}}
         - host: "{{host}}"
         - require:
