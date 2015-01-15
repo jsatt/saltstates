@@ -45,9 +45,10 @@ base:
         - vagrant
         - virtualbox
         - projects.healthgeist
-    'pagoda-VirtualBox':
+    'pagoda':
         - base
         - users
+        - hosts
         - desktop
         - python
         - nginx
