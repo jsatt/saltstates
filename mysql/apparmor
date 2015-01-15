@@ -1,3 +1,4 @@
+{% set datadir = salt['pillar.get']('mysql', {}).get('config', {}).get('datadir', '/var/lib/mysql') %}
 # vim:syntax=apparmor
 # Last Modified: Tue Jun 19 17:37:30 2007
 #include <tunables/global>
@@ -23,8 +24,8 @@
   /etc/mysql/conf.d/ r,
   /etc/mysql/conf.d/* r,
   /etc/mysql/*.cnf r,
-  /home/mysql/ r,
-  /home/mysql/** rwk,
+  {{datadir}}/ r,
+  {{datadir}}/** rwk,
   /usr/lib/mysql/plugin/ r,
   /usr/lib/mysql/plugin/*.so* mr,
   /usr/sbin/mysqld mr,

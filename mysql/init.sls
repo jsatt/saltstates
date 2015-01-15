@@ -1,10 +1,14 @@
+{% set mysql_pillar = pillar.get('mysql', {}) %}
+{% set datadir = mysql_pillar.get('config', {}).get('datadir', '/var/lib/mysql') %}
 /etc/mysql/my.cnf:
     file.managed:
         - source: salt://mysql/my.cnf
+        - template: jinja
 
 /etc/apparmor.d/usr.sbin.mysqld:
     file.managed:
         - source: salt://mysql/apparmor
+        - template: jinja
         - require:
             - file: /etc/mysql/my.cnf
 
@@ -17,12 +21,11 @@ mysql:
         - running
         - require:
             - pkg: mysql
-            - file: /home/mysql
+            - file: mysql
         - watch:
             - file: /etc/mysql/my.cnf
-
-/home/mysql:
     file.directory:
+        - name: {{datadir}}
         - user: mysql
         - group: mysql
         - mode: 700
@@ -40,7 +43,6 @@ mysql-utils:
         - require:
             - pkg: mysql
 
-{% set mysql_pillar = pillar.get('mysql', {}) %}
 
 {% for database in mysql_pillar.get('databases', []) %}
 mysql_db-{{database}}:
@@ -59,11 +61,11 @@ mysql_user-{{username}}-{{host}}:
             - pkg: mysql-utils
             - service: mysql
 
-{% for database in user.get('databases', []) %}
-mysql_user-{{username}}-{{host}}-{{database}}:
+{% for db in user.get('databases', []) %}
+mysql_user-{{username}}-{{host}}-{{db['database']}}:
     mysql_grants.present:
-        - grant: {{user.get('grant', 'all privileges')}}
-        - database: "{{database}}"
+        - database: "{{db['database']}}.{{db.get('table', '*')}}"
+        - grant: {{db.get('grants', ['all privileges'])|join(',')}}
         - user: {{username}}
         - host: "{{host}}"
         - require:
