@@ -1,0 +1,25 @@
+server {
+    listen 80;
+    client_max_body_size 4G;
+    server_name sk.com;
+
+    #location /files/ {
+    #    alias /home/jsatt/dev/project/files/;
+    #}
+
+
+    location / {
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header Host $http_host;
+        proxy_redirect off;
+        proxy_pass http://gunicorn;
+    }
+
+    location ~* ^.+\.(appcache)$ {
+        expires -1;
+        default_type text/cache-manifest;
+        proxy_pass http://gunicorn;
+    }
+}
+
+# vim: set filetype=nginx:

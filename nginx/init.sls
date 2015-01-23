@@ -1,7 +1,7 @@
 nginx:
     pkgrepo.managed:
         - ppa: nginx/stable 
-        - required_in:
+        - require_in:
             - pkg: nginx
     pkg.installed:
         - require:
