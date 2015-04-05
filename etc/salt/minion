@@ -248,6 +248,7 @@ file_client: local
 file_roots:
   base:
     - /srv/salt/
+    - /srv/pillar/files/
 
 # The hash_type is the hash to use when discovering the hash of a file in
 # the minion directory, the default is md5, but sha1, sha224, sha256, sha384
