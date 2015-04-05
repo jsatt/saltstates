@@ -6,8 +6,15 @@ upstream gunicorn {
 
 server {
     listen 80 default;
-    client_max_body_size 4G;
+    listen [::]:80 default ipv6only=on;
+    listen 8443 ssl;
+
     server_name _;
+    ssl_certificate /etc/nginx/ssl/star_jsatt_com.crt;
+    ssl_certificate_key /etc/nginx/ssl/star_jsatt_com.key;
+    add_header Alt-Svc 'h2=":8443"; ma=60;';
+
+    client_max_body_size 4G;
 
     location /static/ {
         expires 1M;
@@ -40,7 +47,14 @@ server {
 
 server {
     listen 80;
+    listen [::]:80 ipv6only=on;
+    listen 8443 ssl;
+
     server_name static.jsatt.com;
+    ssl_certificate /etc/nginx/ssl/star_jsatt_com.crt;
+    ssl_certificate_key /etc/nginx/ssl/star_jsatt_com.key;
+    add_header Alt-Svc 'h2=":8443"; ma=60;';
+
     root {{pillar.django.static_path}};
     expires 1M;
     location /media/ {
