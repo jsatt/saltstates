@@ -2,6 +2,7 @@ DEBUG = False
 ALLOWED_HOSTS = ['{{pillar.django.allowed_host}}']
 
 SECRET_KEY = '{{pillar.django.secret_key}}'
+NEVERCACHE_KEY = '{{pillar.django.nevercache_key}}'
 
 STATIC_URL = '{{pillar.django.static_url}}'
 MEDIA_URL = '{{pillar.django.media_url}}'
