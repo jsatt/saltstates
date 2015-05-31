@@ -16,4 +16,4 @@ LOCAL_INSTALLED_APPS = (
 )
 
 BROKER_URL = 'redis://localhost/0'
-CELERY_RESUL_BACKEND = 'redis://localhost/1'
+CELERY_RESULT_BACKEND = 'redis://localhost/1'

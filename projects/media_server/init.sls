@@ -98,6 +98,15 @@ restart_media_server:
             - file: django_settings_media_server
             - file: django_urls_media_server
 
+
+{% set ext_hd = pillar.media_server.get('ext_hd') %}
+{% if ext_hd %}
+ext_hd_mount:
+    file.append:
+        - name: /etc/fstab
+        - text: UUID={{ext_hd.uuid}} {{ext_hd.mount_point}} {{ext_hd.fstype}} defaults 0 2
+{% endif %}
+
 #collect_static_media_server:
 #    cmd.wait:
 #        - name: python manage.py collectstatic --noinput
