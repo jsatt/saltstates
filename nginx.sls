@@ -9,7 +9,9 @@ nginx:
     service:
         - running
         - watch:
-            - file: /etc/nginx/*
+            - file: /etc/nginx/nginx.conf
+            - file: /etc/nginx/mime.types
+            - file: /etc/nginx/sites-available/default
 
 /etc/nginx/nginx.conf:
     file.managed:

@@ -6,7 +6,7 @@ upstream gunicorn {
 
 server {
     listen 80 default;
-    listen [::]:80 default ipv6only=on;
+    listen [::]:80 ipv6only=on;
     listen 8443 ssl;
 
     server_name _;
@@ -47,7 +47,6 @@ server {
 
 server {
     listen 80;
-    listen [::]:80 ipv6only=on;
     listen 8443 ssl;
 
     server_name static.jsatt.com;
