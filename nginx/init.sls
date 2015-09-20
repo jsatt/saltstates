@@ -13,6 +13,9 @@ nginx:
         - watch:
             - file: /etc/nginx/nginx.conf
             - file: /etc/nginx/mime.types
+            - file: nginx
+    file.absent:
+        - name: /etc/nginx/sites-enabled/default
 
 /etc/nginx/nginx.conf:
     file.managed:
