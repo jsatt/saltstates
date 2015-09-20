@@ -2,13 +2,16 @@ include:
     - aws
     - postgresql
 
-/var/lib/postgreql/.aws:
+/var/lib/postgresql/.aws:
     file.directory:
         - mode: 770
         - user: postgres
         - group: postgres
+        - require:
+            - sls: aws
+            - sls: postgresql
 
-/var/lib/postgreql/.aws/config:
+/var/lib/postgresql/.aws/config:
     file.managed:
         - source: salt://aws/aws_config
         - mode: 600
@@ -16,9 +19,9 @@ include:
         - group: postgres
         - makedirs: True
         - require:
-            - file: /var/lib/postgreql/.aws
+            - file: /var/lib/postgresql/.aws
 
-/var/lib/postgreql/.aws/credentials:
+/var/lib/postgresql/.aws/credentials:
     file.managed:
         - source: salt://aws/aws_credentials
         - template: jinja
@@ -27,7 +30,7 @@ include:
         - group: postgres
         - makedirs: True
         - require:
-            - file: /var/lib/postgreql/.aws
+            - file: /var/lib/postgresql/.aws
 
 /var/lib/postgresql/dbbackup.sh:
     file.managed:
@@ -42,6 +45,6 @@ include:
         - hour: 7
         - require:
             - file: /var/lib/postgresql/dbbackup.sh
-            - file: /var/lib/postgreql/.aws/credentials
-            - file: /var/lib/postgreql/.aws/config
+            - file: /var/lib/postgresql/.aws/credentials
+            - file: /var/lib/postgresql/.aws/config
             - sls: postgresql

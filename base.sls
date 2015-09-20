@@ -1,6 +1,7 @@
 apps:
     pkg.installed:
         - pkgs:
+            - zsh
             - htop
             - screen
             - ssh

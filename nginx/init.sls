@@ -7,10 +7,12 @@ nginx:
         - require:
             - pkgrepo: nginx
     service.running:
+        - require:
+            - file: /etc/nginx/nginx.conf
+            - file: /etc/nginx/mime.types
         - watch:
             - file: /etc/nginx/nginx.conf
             - file: /etc/nginx/mime.types
-            - file: /etc/nginx/sites-available/default
 
 /etc/nginx/nginx.conf:
     file.managed:

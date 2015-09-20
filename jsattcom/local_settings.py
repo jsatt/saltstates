@@ -8,12 +8,14 @@ STATIC_URL = '{{pillar.django.static_url}}'
 MEDIA_URL = '{{pillar.django.media_url}}'
 
 {% set db_engine = pillar[pillar.django.db_engine] %}
+{% set db_schema = db_engine.schemas[pillar.django.db_schema] %}
+{% set db_user = db_engine.users[db_schema.owner] %}
 DATABASES = {
     'default': {
         'ENGINE': '{{pillar.django.db_engine_module}}',
-        'NAME': '{{db_engine.blog_db}}',
-        'USER': '{{db_engine.blog_owner}}',
-        'PASSWORD': '{{db_engine.users[db_engine.blog_owner].password}}',
+        'NAME': '{{pillar.django.db_schema}}',
+        'USER': '{{pillar.django.db_user}}',
+        'PASSWORD': '{{db_engine.users[pillar.django.db_user].password}}',
         'HOST': '{{db_engine.get('host', '127.0.0.1')}}',
         'POST': '{{db_engine.get('port', '')}}'
     }

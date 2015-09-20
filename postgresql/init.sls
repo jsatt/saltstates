@@ -8,8 +8,8 @@ postgresql:
     pkg.installed:
         - names:
             - postgresql-contrib
-            - postgresql-9.4-postgis-2.2
-            - postgresql-server-dev-9.3
+            - postgresql-9.4-postgis-2.1
+            - postgresql-server-dev-9.4
         - require:
             - pkgrepo: postgresql
     service.running:
@@ -24,7 +24,6 @@ pg_user-{{username}}:
         - password: {{user.password}}
         - encrypted: True
         - superuser: {{user.get('superuser', False)}}
-        - runas: postgres
 {% endfor %}
 
 {% for db_name, db in pillar.postgres.schemas.items() %}
@@ -32,7 +31,6 @@ pg_db-{{db_name}}:
     postgres_database.present:
         - name: {{db_name}}
         - owner: {{db.owner}}
-        - runas: postgres
         - require:
             - postgres_user: pg_user-{{db.owner}}
 {% endfor %}

@@ -6,9 +6,7 @@ popd > /dev/null
 
 SALT_VERSION=`cat $SCRIPT_PATH/SALT_VERSION`
 
-wget -O - http://bootstrap.saltstack.org --no-check-certificate | sudo sh -s -- git $SALT_VERSION
-
-$SCRIPT_PATH/scripts/bootstrap-salt.sh
+wget -O - http://bootstrap.saltstack.org --no-check-certificate | sudo sh -s -- -P git $SALT_VERSION
 
 cp $SCRIPT_PATH/salt/masterless-minion /etc/salt/minion
 

@@ -1,6 +1,7 @@
 base:
     "*":
         - salt
+        - users
         - base
         - nginx
         - postgresql

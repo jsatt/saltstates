@@ -1,5 +1,3 @@
 supervisor:
     pkg.installed: []
-    service.running:
-        - watch:
-            - file: supervisor
+    service.running: []

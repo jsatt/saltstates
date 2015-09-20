@@ -17,11 +17,11 @@ jsattcom:
         - mode: 0644
         - template: jinja
         - require:
-            - git: mezzanine
+            - git: jsattcom
     pip.installed:
         - requirements: /var/www/jsattcom-mezzanine/requirements.txt
         - watch:
-            - git: mezzanine
+            - git: jsattcom
         - require:
             - pkg: pillow_dependencies
 
