@@ -6,8 +6,7 @@ nginx:
     pkg.installed:
         - require:
             - pkgrepo: nginx
-    service:
-        - running
+    service.running:
         - watch:
             - file: /etc/nginx/nginx.conf
             - file: /etc/nginx/mime.types
@@ -15,21 +14,14 @@ nginx:
 
 /etc/nginx/nginx.conf:
     file.managed:
-        - source: salt://etc/nginx/nginx.conf
+        - source: salt://nginx/nginx.conf
         - template: jinja
         - require:
             - pkg: nginx
 
 /etc/nginx/mime.types:
     file.managed:
-        - source: salt://etc/nginx/mime.types
-        - template: jinja
-        - require:
-            - pkg: nginx
-
-/etc/nginx/sites-available/default:
-    file.managed:
-        - source: salt://etc/nginx/sites-available/default
+        - source: salt://nginx/mime.types
         - template: jinja
         - require:
             - pkg: nginx
@@ -39,17 +31,10 @@ nginx:
         - user: www-data
         - group: www-data
         - mode: 700
-
-/etc/nginx/ssl/star_jsatt_com.crt:
-    file.managed:
-        - source: salt://ssl/star_jsatt_com.crt
-        - require:
-            - pkg: nginx
-
-/etc/nginx/ssl/star_jsatt_com.key:
-    file.managed:
-        - source: salt://ssl/star_jsatt_com.key
-        - require:
-            - pkg: nginx
+        - file_mode: 600
+        - recurse:
+            - user
+            - group
+            - mode
 
 # vim:set ft=yaml:

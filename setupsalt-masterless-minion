@@ -1,0 +1,15 @@
+#!/bin/bash
+
+pushd `dirname $0` > /dev/null
+SCRIPT_PATH=`pwd -P`
+popd > /dev/null
+
+SALT_VERSION=`cat $SCRIPT_PATH/SALT_VERSION`
+
+wget -O - http://bootstrap.saltstack.org --no-check-certificate | sudo sh -s -- git $SALT_VERSION
+
+$SCRIPT_PATH/scripts/bootstrap-salt.sh
+
+cp $SCRIPT_PATH/salt/masterless-minion /etc/salt/minion
+
+service salt-minion restart

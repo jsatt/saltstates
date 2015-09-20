@@ -1,9 +1,12 @@
 base:
     "*":
+        - salt
         - base
         - nginx
         - postgresql
         - supervisor
         - python
-        - mezzanine
-        - backups
+        - jsattcom
+        - jsattcom.backups
+
+# vim:set ft=yaml:
