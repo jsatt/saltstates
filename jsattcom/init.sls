@@ -25,6 +25,18 @@ jsattcom:
         - require:
             - pkg: pillow_dependencies
 
+media_dir:
+    file.directory:
+        - name: /var/www/jsattcom-mezzanine/media
+        - user: www-data
+        - group: www-data
+        - mode: 700
+        - file_mode: 600
+        - recurse:
+            - user
+            - group
+            - mode
+
 sync_db:
     cmd.wait:
         - name: python manage.py syncdb --noinput
