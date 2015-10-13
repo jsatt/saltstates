@@ -9,13 +9,12 @@ MEDIA_URL = '{{pillar.django.media_url}}'
 
 {% set db_engine = pillar[pillar.django.db_engine] %}
 {% set db_schema = db_engine.schemas[pillar.django.db_schema] %}
-{% set db_user = db_engine.users[db_schema.owner] %}
 DATABASES = {
     'default': {
         'ENGINE': '{{pillar.django.db_engine_module}}',
         'NAME': '{{pillar.django.db_schema}}',
-        'USER': '{{db_user}}',
-        'PASSWORD': '{{db_engine.users[db_user].password}}',
+        'USER': '{{db_schema.owner}}',
+        'PASSWORD': '{{db_engine.users[db_schema.owner].password}}',
         'HOST': '{{db_engine.get('host', '127.0.0.1')}}',
         'POST': '{{db_engine.get('port', '')}}'
     }

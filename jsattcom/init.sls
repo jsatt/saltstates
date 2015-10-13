@@ -90,6 +90,7 @@ jsattcom_ssl_crt:
         - source: salt://ssl/star_jsatt_com.crt
         - require:
             - pkg: nginx
+            - file: /etc/nginx/ssl
 
 jsattcom_ssl_key:
     file.managed:
@@ -97,4 +98,5 @@ jsattcom_ssl_key:
         - source: salt://ssl/star_jsatt_com.key
         - require:
             - pkg: nginx
+            - file: /etc/nginx/ssl
 
