@@ -14,8 +14,8 @@ DATABASES = {
     'default': {
         'ENGINE': '{{pillar.django.db_engine_module}}',
         'NAME': '{{pillar.django.db_schema}}',
-        'USER': '{{pillar.django.db_user}}',
-        'PASSWORD': '{{db_engine.users[pillar.django.db_user].password}}',
+        'USER': '{{db_user}}',
+        'PASSWORD': '{{db_engine.users[db_user].password}}',
         'HOST': '{{db_engine.get('host', '127.0.0.1')}}',
         'POST': '{{db_engine.get('port', '')}}'
     }
