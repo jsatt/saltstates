@@ -1,8 +1,8 @@
 #!/bin/bash
 
-SALT_VERSION=v2014.7.0
+SALT_VERSION=v2015.8.0
 
-wget -O - http://bootstrap.saltstack.org | sudo sh -s -- -P git $SALT_VERSION
+wget -O - http://bootstrap.saltstack.org --no-check-certificate | sudo sh -s -- -P git $SALT_VERSION
 
 pushd `dirname $0` > /dev/null
 SCRIPT_PATH=`pwd -P`

@@ -31,6 +31,7 @@ base:
     'mapplethorpe':
         - base
         - users
+        - hosts
         - desktop
         - python
         - nginx
@@ -41,6 +42,7 @@ base:
         - media.spotify
         - media.audiokonverter
         - media.emusic-deps
+        - media.google-musicmanager
         - browsers
         - vagrant
         - virtualbox
