@@ -15,6 +15,8 @@ media_server_requirements:
             - libxml2-dev
             - zlib1g-dev
             - libsqlite3-dev
+            - libffi-dev
+            - libssl-dev
     pip.installed:
         - names:
             - gunicorn
