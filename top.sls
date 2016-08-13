@@ -63,6 +63,15 @@ base:
         - virtualbox
         - desktop.hipchat
         - summit
+    'futureman':
+        - base
+        - users
+        - python
+        - nginx
+        - redis
+        - minidlna
+        - transmission
+        - projects.media_server
     'jsattcom':
         - base
         - users

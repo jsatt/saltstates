@@ -44,13 +44,13 @@ django_media_server:
     git.latest:
         - name: https://github.com/jsatt/base_app.git
         - target: {{ app_dir }}
-        - runas: {{ app_user }}
+        - user: {{ app_user }}
         - require:
             - file: media_server_directory
             - pip: media_server_requirements
     file.managed:
         - name: /etc/supervisor/conf.d/{{ app_name }}.conf
-        - source: salt://projects/media_server/supervisor.conf
+        - source: salt://projects/media_server/supervisor_django.conf
         - mode: 0644
         - template: jinja
         - defaults:
@@ -67,6 +67,22 @@ django_media_server:
         - cwd: {{ app_dir }}
         - watch:
             - git: django_media_server
+
+celery_media_server:
+    file.managed:
+        - name: /etc/supervisor/conf.d/{{ app_name }}_celery.conf
+        - source: salt://projects/media_server/supervisor_celery.conf
+        - mode: 0644
+        - template: jinja
+        - defaults:
+            app_dir: {{ app_dir }}
+            app_name: {{ app_name }}
+            app_user: {{ app_user }}
+        - require:
+            - pkg: supervisor
+        - watch_in:
+            - service: supervisor
+            - cmd: restart_supervisor
 
 django_settings_media_server:
     file.managed:
@@ -113,7 +129,7 @@ ext_hd_mount:
 #    cmd.wait:
 #        - name: python manage.py collectstatic --noinput
 #        - cwd: {{ app_dir }}
-#        - runas: {{ app_user }}
+#        - user: {{ app_user }}
 #        - watch:
 #            - git: django_media_server
 #            - cmd: django_media_server

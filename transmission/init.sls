@@ -14,7 +14,7 @@ transmission-daemon:
             - user
             - group
         - require:
-            - pkg.installed: transmission-daemon
+            - pkg: transmission-daemon
 
 /etc/transmission-daemon/:
     file.directory:
@@ -24,7 +24,7 @@ transmission-daemon:
             - user
             - group
         - require:
-            - pkg.installed: transmission-daemon
+            - pkg: transmission-daemon
 
 /etc/transmission-daemon/settings.json:
     file.managed:
