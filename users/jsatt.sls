@@ -1,6 +1,7 @@
 jsatt-dotfiles:
     git.present:
         - name: https://github.com/jsatt/dotfiles.git
+        - rev: master
         - target: /home/jsatt/.dotfiles
         - user: jsatt
     cmd.wait:
