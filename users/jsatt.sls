@@ -1,5 +1,5 @@
 jsatt-dotfiles:
-    git.present:
+    git.latest:
         - name: https://github.com/jsatt/dotfiles.git
         - rev: master
         - target: /home/jsatt/.dotfiles
