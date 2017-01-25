@@ -5,6 +5,7 @@
 utils:
     pkg.installed:
         - pkgs:
+            - ack-grep
             - build-essential
             - python-software-properties
             - curl

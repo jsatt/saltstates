@@ -3,7 +3,7 @@ include:
     - desktop.dropbox
     - desktop.googletalk
     - desktop.libreoffice
-    - desktop.wine
+    #- desktop.wine
 
 {% if salt['grains.get']('manufacturer', '') == 'System76, Inc.' %}
 system76:

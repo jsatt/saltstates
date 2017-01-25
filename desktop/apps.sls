@@ -28,7 +28,6 @@ remove_bloat:
             - korganizer
             - kpat
             - kppp
-            - krdc
             - krita
             - krita-data
             - ktorrent
