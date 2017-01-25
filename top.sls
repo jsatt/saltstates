@@ -47,12 +47,33 @@ base:
         - vagrant
         - virtualbox
         #- projects.healthgeist
+    'zissou':
+        - base
+        - users
+        - hosts
+        - desktop
+        - python
+        - python.pil_deps
+        #- python.qt
+        - nginx
+        - mysql
+        - postgresql95
+        - vcs
+        - media.spotify
+        - media.audiokonverter
+        - browsers
+        - virtualbox
+        - summit
+        - heroku
+        - openvpn
     'pagoda':
         - base
         - users
         - hosts
         - desktop
         - python
+        - python.pil_deps
+        - python.qt
         - nginx
         - mysql
         - postgresql94
@@ -61,8 +82,11 @@ base:
         - media.audiokonverter
         - browsers
         - virtualbox
-        - desktop.hipchat
+        #- desktop.hipchat
         - summit
+        #- statsd
+        - heroku
+        - openvpn
     'futureman':
         - base
         - users
