@@ -11,7 +11,7 @@ audiokonverter_dependencies:
             - id3v2
             #- ffmpeg
 
-/usr/share/kde4/services/ServiceMenus/audioconvert4.desktop:
+/usr/share/kservices5/ServiceMenus/audioconvert4.desktop:
     file.managed:
         - source: salt://media/audiokonverter/audioconvert4.desktop
         - mode: 644
@@ -21,7 +21,7 @@ audiokonverter_dependencies:
         - source: salt://media/audiokonverter/audioconvert4.desktop
         - mode: 644
 
-/usr/share/kde4/services/ServiceMenus/audiofrommovie4.desktop:
+/usr/share/kservices5/ServiceMenus/audiofrommovie4.desktop:
     file.managed:
         - source: salt://media/audiokonverter/audiofrommovie4.desktop
         - mode: 644

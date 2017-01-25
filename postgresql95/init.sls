@@ -9,7 +9,7 @@ postgresql:
     pkg.installed:
         - names:
             - postgresql-contrib
-            - postgresql-9.4-postgis-2.2
+            - postgresql-9.5-postgis-2.2
             - pgadmin3
             - postgresql-client
         - require:
@@ -40,7 +40,7 @@ postgresql:
 
 move_postgres_data:
     file.managed:
-        - name: /etc/postgresql/9.4/main/postgresql.conf
+        - name: /etc/postgresql/9.5/main/postgresql.conf
         - source: salt://postgresql94/postgresql.conf
         - require:
             - pkg: postgresql
@@ -57,9 +57,9 @@ postgresql_running:
         - reload: True
         - require:
             - pkg: postgresql
-            - file: /etc/postgresql/9.4/main/postgresql.conf
+            - file: /etc/postgresql/9.5/main/postgresql.conf
         - watch:
-            - file: /etc/postgresql/9.4/main/postgresql.conf
+            - file: /etc/postgresql/9.5/main/postgresql.conf
 
 {% for username, user in pillar.postgres.users.items() %}
 pg_user-{{username}}:

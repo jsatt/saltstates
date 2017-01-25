@@ -35,8 +35,8 @@ base:
         - desktop
         - python
         - nginx
-        - redis
-        - postgresql93
+        #- redis
+        - postgresql95
         - vcs
         #- ufw
         - media.spotify
@@ -46,7 +46,7 @@ base:
         - browsers
         - vagrant
         - virtualbox
-        - projects.healthgeist
+        #- projects.healthgeist
     'pagoda':
         - base
         - users
