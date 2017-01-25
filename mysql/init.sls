@@ -5,6 +5,10 @@
         - source: salt://mysql/my.cnf
         - template: jinja
 
+/etc/mysql/conf.d:
+    file.directory:
+        - makedirs: True
+
 /etc/apparmor.d/usr.sbin.mysqld:
     file.managed:
         - source: salt://mysql/apparmor
@@ -56,6 +60,7 @@ mysql_db-{{database}}:
 mysql_user-{{username}}-{{host}}:
     mysql_user.present:
         - name: {{username}}
+        - host: {{host}}
         - password: "{{user.password}}"
         - require:
             - pkg: mysql-utils

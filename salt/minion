@@ -6,4 +6,3 @@ pillar_roots:
   base:
     - /home/jsatt/install/pillar/
 state_verbose: False
-mysql.unix_socket: '/tmp/mysqld.sock'
