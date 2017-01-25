@@ -1,6 +1,9 @@
 upstream gunicorn {
     server 127.0.0.1:8000;
 }
+upstream gunicorn2 {
+    server 127.0.0.1:8080;
+}
 
 server {
     listen 80 default;

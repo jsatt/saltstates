@@ -6,9 +6,14 @@ nginx:
     pkg.installed:
         - require:
             - pkgrepo: nginx
-    service:
-        - running
+    file.managed:
+        - name: /etc/nginx/nginx.conf
+        - source: salt://nginx/nginx.conf
+        - require:
+            - pkg: nginx
+    service.running:
         - watch:
+            - file: /etc/nginx/nginx.conf
             - file: /etc/nginx/sites-available/default
 
 /etc/nginx/sites-available/default:

@@ -1,24 +1,35 @@
+{% set skweb = pillar.get('skweb', {}) -%}
 server {
     listen 80;
     client_max_body_size 4G;
     server_name sk.com;
+    root {{skweb.get('path', '')}}/client;
 
-    #location /files/ {
-    #    alias /home/jsatt/dev/project/files/;
+    #location /static/admin/ {
+        #alias {{skweb.get('venv_path', '')}}/lib/python2.7/site-packages/django/contrib/admin/static/admin/;
     #}
 
+    location /media/ {
+        alias {{skweb.get('path', '')}}/server/media/;
+    }
 
-    location / {
+    location / { # TODO: clean up how static files are served
+        try_files $uri @django;
+    }
+
+    location @django {
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header Host $http_host;
         proxy_redirect off;
+        proxy_connect_timeout 1h;
+        proxy_read_timeout 1h;
+        proxy_send_timeout 1h;
         proxy_pass http://gunicorn;
     }
 
-    location ~* ^.+\.(appcache)$ {
+    location ~* ^.+\.(?:manifest|appcache)$ {
         expires -1;
         default_type text/cache-manifest;
-        proxy_pass http://gunicorn;
     }
 }
 
