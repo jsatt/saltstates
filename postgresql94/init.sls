@@ -1,7 +1,8 @@
 
 postgresql:
     pkgrepo.managed:
-        - name: deb http://apt.postgresql.org/pub/repos/apt/ {{salt['grains.get']('oscodename', 'utopic')}}-pgdg main
+        #- name: deb http://apt.postgresql.org/pub/repos/apt/ {{salt['grains.get']('oscodename', 'utopic')}}-pgdg main
+        - name: deb http://apt.postgresql.org/pub/repos/apt/ xenial-pgdg main
         - file: /etc/apt/sources.list.d/postgresql.list
         - key_url: http://apt.postgresql.org/pub/repos/apt/ACCC4CF8.asc
         - require_in:

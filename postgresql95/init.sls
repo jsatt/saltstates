@@ -41,7 +41,7 @@ postgresql:
 move_postgres_data:
     file.managed:
         - name: /etc/postgresql/9.5/main/postgresql.conf
-        - source: salt://postgresql94/postgresql.conf
+        - source: salt://postgresql95/postgresql.conf
         - require:
             - pkg: postgresql
         - mode: 755
