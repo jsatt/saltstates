@@ -43,6 +43,7 @@ base:
         - media.audiokonverter
         - media.emusic-deps
         - media.google-musicmanager
+        - desktop.neovim
         - browsers
         - vagrant
         - virtualbox
