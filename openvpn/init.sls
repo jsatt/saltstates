@@ -2,7 +2,7 @@ openvpn:
     pkg.installed: []
     service.running: []
 
-{% for name, client in salt['pillar.get']('openvpn', {}).get('clients').items() %}
+{% for name, client in salt['pillar.get']('openvpn', {}).get('clients', {}).items() %}
 ovpn_{{name}}:
     file.managed:
         - name: /etc/openvpn/{{ name }}.conf
