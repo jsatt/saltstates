@@ -10,6 +10,7 @@ utils:
             - python-software-properties
             - curl
             - htop
+            - net-tools
             - screen
             - ssh
             - vim
