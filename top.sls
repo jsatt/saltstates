@@ -23,7 +23,7 @@ base:
         - python
         - nginx
         - redis
-        #- postgresql93
+        #- postgresql.93
         - vcs.git
         - minidlna
         - transmission
@@ -36,7 +36,7 @@ base:
         - python
         - nginx
         #- redis
-        - postgresql95
+        - postgresql.96
         - vcs
         #- ufw
         - media.spotify
@@ -58,7 +58,7 @@ base:
         #- python.qt
         - nginx
         - mysql
-        - postgresql95
+        - postgresql.95
         - vcs
         - media.spotify
         - media.audiokonverter
@@ -77,7 +77,7 @@ base:
         - python.qt
         - nginx
         - mysql
-        - postgresql94
+        - postgresql.94
         - vcs
         - media.spotify
         - media.audiokonverter
