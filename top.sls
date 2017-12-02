@@ -69,6 +69,7 @@ base:
         - heroku
         - openvpn
         - docker
+        - system.nvidia
     'pagoda':
         - base
         - users
