@@ -8,6 +8,7 @@ utils:
             - ack-grep
             - build-essential
             - python-software-properties
+            - cmake
             - curl
             - htop
             - net-tools
