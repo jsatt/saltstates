@@ -10,7 +10,7 @@ postgresql:
     pkg.installed:
         - names:
             - postgresql-contrib
-            - postgresql-9.5-postgis-2.2
+            - postgresql-9.5-postgis-2.3
             - pgadmin3
             - postgresql-client
         - require:
