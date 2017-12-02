@@ -1,6 +1,7 @@
 openvpn:
     pkg.installed: []
-    service.running: []
+    #service.running:
+        #- name: openvpn.service
 
 {% for name, client in salt['pillar.get']('openvpn', {}).get('clients', {}).items() %}
 ovpn_{{name}}:
@@ -17,6 +18,8 @@ ovpn_{{name}}:
             cipher: {{ client.get('cipher') }}
         - watch_in:
             - service: openvpn
+    service.running:
+        - name: openvpn@{{name}}
 {% endfor %}
 
 # vim:set ft=yaml:
