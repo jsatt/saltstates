@@ -57,8 +57,9 @@ base:
         - python.pil_deps
         #- python.qt
         - nginx
+        - redis
         - mysql
-        - postgresql.95
+        #- postgresql.95
         - vcs
         - media.spotify
         - media.audiokonverter
