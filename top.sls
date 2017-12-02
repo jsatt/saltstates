@@ -68,6 +68,7 @@ base:
         - summit
         - heroku
         - openvpn
+        - docker
     'pagoda':
         - base
         - users
