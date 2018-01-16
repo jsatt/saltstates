@@ -5,7 +5,8 @@
 utils:
     pkg.installed:
         - pkgs:
-            - ack-grep
+            #- ack-grep
+            - silversearcher-ag
             - build-essential
             - python-software-properties
             - cmake
