@@ -54,19 +54,19 @@ base:
         - hosts
         - desktop
         - python
-        - python.pil_deps
+        #- python.pil_deps
         #- python.qt
-        - nginx
-        - redis
-        - mysql
+        #- nginx
+        #- redis
+        #- mysql
         #- postgresql.95
         - vcs
         - media.spotify
-        - media.audiokonverter
+        #- media.audiokonverter
         - browsers
         - virtualbox
-        - summit
-        - heroku
+        #- summit
+        #- heroku
         - openvpn
         - docker
         - system.nvidia
