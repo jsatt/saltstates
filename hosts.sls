@@ -1,4 +1,4 @@
-{% for hostname, host in pillar.hostnames.items() %}
+{% for hostname, host in pillar.get('hostnames', {}).items() %}
 {{hostname}}:
     host.present:
         - ip: {{host['ip']}}

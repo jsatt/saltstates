@@ -1,6 +1,6 @@
 #!/bin/bash
 
-SALT_VERSION=v2017.7.2
+SALT_VERSION=v2018.3.0
 
 wget -O - http://bootstrap.saltstack.org --no-check-certificate | sudo sh -s -- -P git $SALT_VERSION
 

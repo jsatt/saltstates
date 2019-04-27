@@ -8,7 +8,7 @@ utils:
             #- ack-grep
             - silversearcher-ag
             - build-essential
-            - python-software-properties
+            #- python-software-properties
             - cmake
             - curl
             - htop

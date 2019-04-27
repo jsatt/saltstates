@@ -36,16 +36,16 @@ base:
         - python
         - nginx
         #- redis
-        - postgresql.96
+        #- postgresql.96
         - vcs
         #- ufw
         - media.spotify
-        - media.audiokonverter
-        - media.emusic-deps
-        - media.google-musicmanager
-        - browsers
+        #- media.audiokonverter
+        #- media.emusic-deps
+        #- media.google-musicmanager
+        - browsers.firefox
         - vagrant
-        - virtualbox
+        #- virtualbox
         - openvpn
         #- projects.healthgeist
     'zissou':

@@ -1,9 +1,8 @@
 include:
     - desktop.apps
-    - desktop.dropbox
-    - desktop.googletalk
+    #- desktop.dropbox
+    - desktop.owncloud
     - desktop.libreoffice
-    #- desktop.wine
 
 {% if salt['grains.get']('manufacturer', '') == 'System76, Inc.' %}
 system76:
