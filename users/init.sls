@@ -17,8 +17,8 @@ user-{{ username }}:
             - {{ group }}
             {%- endfor %}
         {%- endif %}
-        - fullname: {{ user.get('fullname', username) }}
-        - shell: {{ user.get('shell', '/bin/bash') }}
+        {% if user.get('fullname') %}- fullname: {{ user.fullname }}{% endif %}
+        {% if user.get('shell') %}- shell: {{ user.shell }}{% endif %}
 
 {% if user.get('ssh_keys', []) -%}
 sshkeys-{{ username }}:

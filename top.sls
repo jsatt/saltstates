@@ -20,14 +20,15 @@ base:
     'mrlittlejeans':
         - base
         - users
-        - python
-        - nginx
-        - redis
-        #- postgresql.93
+        - hosts
+        - desktop.apps
         - vcs.git
-        - minidlna
-        - transmission
-        - projects.media_server
+        - media.local
+        - media.spotify
+        - browsers.firefox
+        - docker
+        - python
+        - gcloud
     'mapplethorpe':
         - base
         - users
