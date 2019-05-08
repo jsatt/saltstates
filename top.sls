@@ -48,6 +48,7 @@ base:
         #- virtualbox
         - openvpn
         #- projects.healthgeist
+        - keybase
     'zissou':
         - base
         - users
