@@ -1,7 +1,7 @@
 include:
     - desktop.apps
     #- desktop.dropbox
-    - desktop.owncloud
+    - desktop.nextcloud
     - desktop.libreoffice
 
 {% if salt['grains.get']('manufacturer', '') == 'System76, Inc.' %}

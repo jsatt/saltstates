@@ -34,8 +34,9 @@ base:
         - users
         - hosts
         - desktop
-        - python
-        - nginx
+        - vim
+        #- python
+        #- nginx
         #- redis
         #- postgresql.96
         - vcs
@@ -45,9 +46,9 @@ base:
         #- media.emusic-deps
         #- media.google-musicmanager
         - browsers.firefox
-        - vagrant
+        #- vagrant
         #- virtualbox
-        - openvpn
+        #- openvpn
         #- projects.healthgeist
         - keybase
     'zissou':

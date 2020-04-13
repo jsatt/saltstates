@@ -11,10 +11,10 @@ utils:
             - curl
             - htop
             - net-tools
+            - npm
             - screen
             - ssh
-            - vim
-            - vim-gui-common
+            - tmux
             - zsh
 
 # vim:set ft=yaml:
