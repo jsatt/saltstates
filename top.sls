@@ -97,12 +97,8 @@ base:
     'futureman':
         - base
         - users
-        - python
-        - nginx
-        - redis
-        - minidlna
-        - transmission
-        - projects.media_server
+        - docker
+        - steam
     'jsattcom':
         - base
         - users
