@@ -5,6 +5,7 @@
 utils:
     pkg.installed:
         - pkgs:
+            - python-apt
             - silversearcher-ag
             - build-essential
             - cmake

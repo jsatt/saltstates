@@ -1,5 +1,5 @@
 include:
-    - python
+    - python2
 
 pyside-deps:
     pkg.installed:

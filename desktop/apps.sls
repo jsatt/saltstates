@@ -1,12 +1,10 @@
 apps:
     pkg.installed:
         - pkgs:
-            - congruity
             - exuberant-ctags
             - gimp
             - kdiff3
-            - konversation
-            - qgis
+            - qps
             - synaptic
             - terminator
             - transmission
@@ -38,5 +36,6 @@ remove_bloat:
             - muon-updater
             - quassel
             - rdesktop
+            - thunderbird
 
 # vim:set ft=yaml:

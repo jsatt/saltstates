@@ -1,5 +1,5 @@
 include:
-    - python
+    - python2
     - supervisor
 
 {% set app_name = 'media_server' %}
