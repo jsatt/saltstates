@@ -99,6 +99,7 @@ base:
         - users
         - docker
         - steam
+        - vim
     'jsattcom':
         - base
         - users
