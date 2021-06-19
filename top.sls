@@ -9,6 +9,7 @@ base:
         - python3
         - vcs
         - media.spotify
+        - media.local
         - browsers.firefox
         - browsers.chrome
         - hardware.clevo-backlight

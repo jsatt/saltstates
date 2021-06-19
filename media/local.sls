@@ -1,6 +1,7 @@
 media_apps:
     pkg.installed:
         - pkgs:
+            - clementine
             - easytag
             - vlc
 
