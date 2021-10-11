@@ -13,3 +13,6 @@ docker:
             - docker-ce
         - require:
             - pkgrepo: docker
+
+    pip.installed:
+      - name: docker

@@ -15,13 +15,7 @@ minidlna:
         - watch:
             - file: /etc/minidlna.conf
 
-
 /home/media:
     file.directory:
         - mode: 777
         - makedirs: True
-
-#/etc/ufw/applications.d/minidlna:
-#    file.managed:
-#        - source: salt://etc/ufw/applications.d/minidlna
-
