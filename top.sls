@@ -32,6 +32,9 @@ base:
         - base
         - users
         - docker
+        - docker_services.flexget
+        - docker_services.minidlna
+        - openvpn
         - steam
         - vim
 
