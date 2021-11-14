@@ -34,6 +34,7 @@ base:
         - docker
         - docker_services.flexget
         - docker_services.minidlna
+        - docker_services.transmission
         - openvpn
         - steam
         - vim
