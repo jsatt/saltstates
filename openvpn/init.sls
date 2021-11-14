@@ -29,4 +29,16 @@ ovpn_{{name}}:
     - name: openvpn@{{name}}
 {% endfor %}
 
+{%- for name, client in salt['pillar.get']('openvpn', {}).get('deprecated', {}).items() %}
+{%- if client.user_pass %}
+ovpn_{{name}}_auth:
+  file.absent:
+    - name: /etc/openvpn/{{name}}.auth
+{%- endif %}
+
+ovpn_{{name}}:
+  file.absent:
+    - name: /etc/openvpn/{{ name }}.conf
+{% endfor %}
+
 # vim:set ft=yaml:
