@@ -7,8 +7,7 @@ minidlna:
     - image: vladgh/minidlna
     - detach: True
     - restart_policy: always
-    - networks:
-      - host
+    - network_mode: host
     - binds:
       - {{ minidlna.get('media_path') }}:/media
       - {{minidlna.get('cache_path') }}:/cache
