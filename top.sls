@@ -31,6 +31,7 @@ base:
     'futureman':
         - base
         - users
+        - desktop.retroarch
         - docker
         - docker_services.plex
         - docker_services.transmission
