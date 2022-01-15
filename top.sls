@@ -37,6 +37,7 @@ base:
         - docker_services.prowlarr
         - docker_services.radarr
         - docker_services.sonarr
+        - docker_services.nginx_proxy
         - openvpn
         - steam
         - vim
