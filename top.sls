@@ -32,9 +32,11 @@ base:
         - base
         - users
         - docker
-        - docker_services.flexget
-        - docker_services.minidlna
+        - docker_services.plex
         - docker_services.transmission
+        - docker_services.prowlarr
+        - docker_services.radarr
+        - docker_services.sonarr
         - openvpn
         - steam
         - vim

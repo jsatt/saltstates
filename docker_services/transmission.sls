@@ -10,9 +10,9 @@ transmission:
     - network_mode: host
     - binds:
       - {{transmission['download_dir']}}:/downloads
-      {% if 'config_dir' in transmission -%}
+      {%- if 'config_dir' in transmission %}
       - {{transmission['config_dir']}}:/config {% endif %}
-      {% if 'watch_dir' in transmission -%}
+      {%- if 'watch_dir' in transmission %}
       - {{transmission['watch_dir']}}:/watch {% endif %}
     - environment:
       - PUID: '{{transmission.get("uid", 1000)}}'
