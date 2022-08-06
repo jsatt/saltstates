@@ -5,7 +5,7 @@
 utils:
     pkg.installed:
         - pkgs:
-            - python-apt
+            - python3-apt
             - silversearcher-ag
             - build-essential
             - cmake
@@ -13,7 +13,6 @@ utils:
             - htop
             - net-tools
             - npm
-            - screen
             - ssh
             - tmux
             - zsh

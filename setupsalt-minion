@@ -1,9 +1,9 @@
 #!/bin/bash
 set -e
 
-SALT_VERSION=v3001.1
+SALT_VERSION=v3004.1
 
-wget -O - http://bootstrap.saltstack.org --no-check-certificate | sudo sh -s -- -P -x python3 git $SALT_VERSION
+wget -O - http://bootstrap.saltproject.io --no-check-certificate | sudo sh -s -- -P -x python3 git $SALT_VERSION
 
 pushd `dirname $0` > /dev/null
 SCRIPT_PATH=`pwd -P`
